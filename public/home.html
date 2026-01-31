@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Feed - Decision Support</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav>
+        <div style="font-weight: 700; font-size: 1.2rem;">Decision Support</div>
+        <div>
+            <a href="home.html" style="color: var(--primary);">Home</a>
+            <a href="ask.html">Ask Question</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" onclick="logout()" style="color: var(--danger);">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+            <h2>Your Feed</h2>
+            <button class="secondary" onclick="showPrefs()" style="font-size: 0.9rem;">
+                Manage Preferences
+            </button>
+        </div>
+
+        <div class="tabs">
+            <button class="active" onclick="loadFeed('personalised', this)">For You</button>
+            <button onclick="loadFeed('trending', this)">Trending</button>
+            <button onclick="loadFeed('unanswered', this)">Unanswered</button>
+        </div>
+
+        <div id="feed-content">
+            <!-- questions go here -->
+            <div style="text-align: center; color: var(--text-muted); padding: 40px;">Loading feed...</div>
+        </div>
+    </div>
+
+    <!-- Preferences Modal -->
+    <dialog id="prefs-modal">
+        <div class="modal-content">
+            <h3>Personalise Your Feed</h3>
+            <p style="color: var(--text-muted);">Select the topics you are interested in.</p>
+
+            <div id="pref-chips" class="chip-container">
+                <!-- Chips injected by JS -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="secondary" onclick="document.getElementById('prefs-modal').close()">Cancel</button>
+            <button onclick="savePrefs()">Save Preferences</button>
+        </div>
+    </dialog>
+
+    <script src="app.js"></script>
+    <script>
+        // Check preferences on load - show modal if user has none
+        window.onload = async function () {
+            const hasPrefs = await checkUserPreferences();
+            if (!hasPrefs) {
+                showPrefs(); // Show modal immediately if no preferences
+            }
+            loadFeed('personalised', document.querySelector('.tabs button'));
+        }
+    </script>
+</body>
+
+</html>
