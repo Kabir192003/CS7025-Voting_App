@@ -178,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="question-card-meta-left">
                   <span class="meta-chip neutral">${q.username}</span>
                   ${cats}
-                   <span class="meta-time">${date}</span>
                 </div>
                 <button class="save-link-btn" type="button" onclick="event.stopPropagation()">Save</button>
               </div>

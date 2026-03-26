@@ -45,7 +45,6 @@ async function showQuestion() {
             <div class="question-card-meta-left">
                 <span class="meta-chip neutral">${q.username}</span>
                 ${cats}
-                 <span class="meta-time">${date}</span>
             </div>
             <button class="save-link-btn" type="button">Save</button>
             </div>

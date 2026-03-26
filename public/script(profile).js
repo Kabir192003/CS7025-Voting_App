@@ -300,7 +300,6 @@ function makeCards(questions, label) {
                 <span class="meta-chip neutral">${label}</span>
                 ${cats}
                 </div>
-                <span class="profile-card-time">${date}</span>
             </div>
             <h3>${q.title}</h3>
             <p>${q.description}</p>
