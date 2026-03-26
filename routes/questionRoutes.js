@@ -1,12 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const questionController = require("../controllers/questionController");
-const authenticateToken = require("../middleware/authMiddleware");
+const router = require('express').Router()
+const checkAuth = require('../middleware/authMiddleware')
+const questions = require('../controllers/questionController')
 
-// Create a new question
-router.post("/", authenticateToken, questionController.createQuestion);
+router.use(checkAuth)
+router.post('/', questions.createQuestion)
+router.get('/:id', questions.getQuestionById)
 
-// Get a specific question
-router.get("/:id", authenticateToken, questionController.getQuestionById);
-
-module.exports = router;
+module.exports = router

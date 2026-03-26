@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.key
+*.cert
+*.pem
+import_aiven.js

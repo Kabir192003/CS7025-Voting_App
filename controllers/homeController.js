@@ -1,110 +1,92 @@
-const db = require('../config/db');
+const db = require('../config/db')
 
-const getPersonalisedHome = async (req, res) => {
+// grabs options, categories, and user votes for a list of questions
+async function fillInDetails(questions, userId) {
+  if (!questions.length) return questions
+  const ids = questions.map(q => q.question_id)
+
+  const [opts] = await db.query(`
+    SELECT o.option_id, o.question_id, o.option_text,
+      (SELECT COUNT(*) FROM responses WHERE option_id = o.option_id) as votes
+    FROM options o WHERE o.question_id IN (?)`, [ids])
+
+  const [cats] = await db.query(`
+    SELECT qc.question_id, c.name FROM question_categories qc
+    JOIN categories c ON qc.category_id = c.category_id
+     WHERE qc.question_id IN (?)`, [ids])
+
+  let voted = {}
+  if (userId) {
+    const [rows] = await db.query(
+      'SELECT question_id, option_id FROM responses WHERE user_id = ? AND question_id IN (?)',
+      [userId, ids]
+    )
+    rows.forEach(r => voted[r.question_id] = r.option_id)
+  }
+
+  return questions.map(q => {
+    q.options = opts.filter(o => o.question_id === q.question_id)
+    q.categories = cats.filter(c => c.question_id === q.question_id).map(c => c.name)
+    q.user_voted_option_id = voted[q.question_id] || null
+    return q
+  })
+}
+
+exports.getPersonalisedHome = async (req, res) => {
   try {
-    const userId = req.user.user_id;
-
-    // 1. Get user preferences
     const [prefs] = await db.query(
-      "SELECT category_id FROM user_preferences WHERE user_id = ?",
-      [userId]
-    );
+      'SELECT category_id FROM user_preferences WHERE user_id = ?', [req.user.user_id]
+    )
+    const catIds = prefs.map(p => p.category_id)
 
-    let query;
-    let params = [];
-
-    if (prefs.length === 0) {
-      // Fallback: No preferences, show latest questions
-      query = `
-        SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
-               (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
-        FROM questions q 
-        JOIN users u ON q.user_id = u.user_id 
-        ORDER BY q.created_at DESC 
-        LIMIT 20
-      `;
+    let sql
+    if (catIds.length === 0) {
+      sql = `SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+        (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
+        FROM questions q JOIN users u ON q.user_id = u.user_id
+        ORDER BY q.created_at DESC LIMIT 20`
     } else {
-      // Filter by preferences
-      const categoryIds = prefs.map(p => p.category_id);
-      query = `
-        SELECT DISTINCT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
-               (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
-        FROM questions q 
-        JOIN question_categories qc ON q.question_id = qc.question_id 
-        JOIN users u ON q.user_id = u.user_id 
-        WHERE qc.category_id IN (?) 
-        ORDER BY q.created_at DESC 
-        LIMIT 50
-      `;
-      params = [categoryIds];
+      sql = `SELECT DISTINCT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+        (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
+        FROM questions q JOIN question_categories qc ON q.question_id = qc.question_id
+        JOIN users u ON q.user_id = u.user_id
+        WHERE qc.category_id IN (?) ORDER BY q.created_at DESC LIMIT 50`
     }
 
-    const [questions] = await db.query(query, params);
-
-    // Mask anonymous users
-    questions.forEach(q => {
-      if (q.is_anonymous) q.username = "Anonymous";
-    });
+    let [questions] = await db.query(sql, catIds.length ? [catIds] : [])
+    questions.forEach(q => { if (q.is_anonymous) q.username = 'Anonymous' })
+    questions = await fillInDetails(questions, req.user.user_id)
 
     res.json({
-      message: prefs.length > 0 ? "Personalised feed" : "General feed (no preferences set)",
-      preferences: prefs.map(p => p.category_id),
+      message: catIds.length ? 'Personalised feed' : 'General feed',
+      preferences: catIds,
       data: questions
-    });
-
-  } catch (err) {
-    console.error("HOME FEED ERROR >>>", err);
-    res.status(500).json({ message: 'Server error' });
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ message: 'Server error' })
   }
-};
+}
 
-const getTrendingFeed = async (req, res) => {
+const makeFeed = (sortDir) => async (req, res) => {
   try {
-    const query = `
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username, COUNT(r.response_id) as interaction_count
-      FROM questions q
-      JOIN users u ON q.user_id = u.user_id
+    let [questions] = await db.query(`
+      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+        COUNT(r.response_id) as interaction_count
+      FROM questions q JOIN users u ON q.user_id = u.user_id
       LEFT JOIN responses r ON q.question_id = r.question_id
-      GROUP BY q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username
-      ORDER BY interaction_count DESC, q.created_at DESC
-      LIMIT 20
-    `;
-    const [questions] = await db.query(query);
+      GROUP BY q.question_id ORDER BY interaction_count ${sortDir}, q.created_at DESC LIMIT 20
+    `)
+    questions.forEach(q => { if (q.is_anonymous) q.username = 'Anonymous' })
+    questions = await fillInDetails(questions, req.user.user_id)
 
-    questions.forEach(q => {
-      if (q.is_anonymous) q.username = "Anonymous";
-    });
-
-    res.json({ message: "Trending feed", data: questions });
-  } catch (err) {
-    console.error("TRENDING FEED ERROR >>>", err.code, err.message);
-    res.status(500).json({ message: 'Server error' });
+    const label = sortDir === 'DESC' ? 'Trending' : 'Unanswered'
+    res.json({ message: label + ' feed', data: questions })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ message: 'Server error' })
   }
-};
+}
 
-const getUnansweredFeed = async (req, res) => {
-  try {
-    const query = `
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username, COUNT(r.response_id) as interaction_count
-      FROM questions q
-      JOIN users u ON q.user_id = u.user_id
-      LEFT JOIN responses r ON q.question_id = r.question_id
-      GROUP BY q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username
-      ORDER BY interaction_count ASC, q.created_at DESC
-      LIMIT 20
-    `;
-    const [questions] = await db.query(query);
-
-    questions.forEach(q => {
-      if (q.is_anonymous) q.username = "Anonymous";
-    });
-
-    res.json({ message: "Unanswered feed", data: questions });
-  } catch (err) {
-    console.error("UNANSWERED FEED ERROR >>>", err.code, err.message);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-module.exports = { getPersonalisedHome, getTrendingFeed, getUnansweredFeed };
-
+exports.getTrendingFeed = makeFeed('DESC')
+exports.getUnansweredFeed = makeFeed('ASC')

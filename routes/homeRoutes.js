@@ -1,12 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const { getPersonalisedHome, getTrendingFeed, getUnansweredFeed } = require('../controllers/homeController');
-const authenticateToken = require('../middleware/authMiddleware');
+const router = require('express').Router()
+const checkAuth = require('../middleware/authMiddleware')
+const home = require('../controllers/homeController')
 
+router.use(checkAuth)
+router.get(['/', '/personalised'], home.getPersonalisedHome)
+router.get('/trending', home.getTrendingFeed)
+router.get('/unanswered', home.getUnansweredFeed)
 
-router.get('/', authenticateToken, getPersonalisedHome);
-router.get('/personalised', authenticateToken, getPersonalisedHome);
-router.get('/trending', authenticateToken, getTrendingFeed);
-router.get('/unanswered', authenticateToken, getUnansweredFeed);
-
-module.exports = router;
+module.exports = router

@@ -13,7 +13,7 @@ app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/preferences', require('./routes/preferenceRoutes'))
 app.use('/api/home', require('./routes/homeRoutes'))
 
-app.get('/', (req, res) => res.redirect('/home.html'))
+app.get('/', (req, res) => res.send('Server is running'))
 
 const port = process.env.PORT || 4000
 app.listen(port, () => console.log('server up on port ' + port))

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask a Question - Decision Support</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-brand">Decision Support</div>
+        <div>
+            <a href="home.html">Home</a>
+            <a href="ask.html" class="active-link">Ask Question</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" onclick="logout()" class="text-danger">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Ask Something</h2>
+        <div class="card p-xl border">
+
+            <label for="q-title" class="block font-bold mb-xs">Question Title</label>
+            <input type="text" id="q-title" placeholder="e.g. Which laptop should I buy for coding?">
+
+            <label for="q-desc" class="block font-bold mb-xs">Description</label>
+            <textarea id="q-desc" rows="4" placeholder="Provide more context..."></textarea>
+
+            <label for="q-cat" class="block font-bold mb-xs">Category</label>
+            <select id="q-cat"></select>
+
+            <div class="flex gap-lg mt-md">
+                <label class="flex center cursor-pointer">
+                    <input type="checkbox" id="q-anon" class="w-auto mr-sm">
+                    Post Anonymously
+                </label>
+                <label class="flex center cursor-pointer">
+                    <input type="checkbox" id="q-comments" checked class="w-auto mr-sm">
+                    Allow Comments
+                </label>
+            </div>
+
+            <h3 class="mt-lg">Voting Options</h3>
+            <div id="options-list">
+                <input type="text" class="opt-input" placeholder="Option 1">
+                <input type="text" class="opt-input" placeholder="Option 2">
+            </div>
+
+            <button class="secondary text-sm mt-xs" onclick="addOption()">+ Add Another Option</button>
+
+            <div class="text-right mt-xl">
+                <button onclick="postQuestion()">Post Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>loadCategoriesForSelect();</script>
+</body>
+
+</html>

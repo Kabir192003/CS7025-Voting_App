@@ -1,11 +1,7 @@
-const express = require("express");
-const router = express.Router();
+const router = require('express').Router()
+const checkAuth = require('../middleware/authMiddleware')
+const { savePreferences } = require('../controllers/preferenceController')
 
-const authMiddleware = require("../middleware/authMiddleware");
-const preferenceController = require("../controllers/preferenceController");
+router.post('/', checkAuth, savePreferences)
 
-router.post("/", authMiddleware, preferenceController.savePreferences);
-
-module.exports = router;
-
-
+module.exports = router

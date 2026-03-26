@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Question - This or That</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="ask-body">
+    <div class="ask-wrapper">
+        <header class="dashboard-navbar">
+            <a href="home.html" class="dashboard-logo">This or That</a>
+
+            <nav class="dashboard-nav">
+                <a href="home.html" class="dashboard-link">Home</a>
+                <a href="ask-question.html" class="dashboard-link active">Ask Question</a>
+                <a href="profile.html" class="dashboard-link">Profile</a>
+                <a href="login.html" class="dashboard-link logout-link">Logout</a>
+            </nav>
+        </header>
+
+        <main class="ask-main">
+            <section class="ask-hero">
+                <div class="ask-hero-text">
+                    <span class="ask-tag">Start a new decision on This or That</span>
+                    <h1>Ask a Question</h1>
+                    <p>
+                        Share what you are deciding, add clear options, and let the community help you choose.
+                    </p>
+                </div>
+
+                <div class="ask-hero-art">
+                    <div class="ask-circle ask-circle-one"></div>
+                    <div class="ask-circle ask-circle-two"></div>
+                    <div class="ask-curve ask-curve-one"></div>
+                    <div class="ask-curve ask-curve-two"></div>
+                    <div class="ask-dot ask-dot-one"></div>
+                    <div class="ask-dot ask-dot-two"></div>
+                </div>
+            </section>
+
+            <section class="ask-layout">
+                <div class="ask-form-card">
+                    <div class="ask-card-header">
+                        <div class="ask-card-icon">?</div>
+                        <div>
+                            <h2>Your Question</h2>
+                            <p>Keep it simple, specific, and easy to answer.</p>
+                        </div>
+                    </div>
+
+                    <form id="questionForm" class="ask-form">
+                        <label for="questionTitle">Question Title</label>
+                        <input 
+                            type="text" 
+                            id="questionTitle" 
+                            name="questionTitle" 
+                            placeholder="e.g. Should I buy a Lenovo laptop or a Dell laptop?"
+                        >
+
+                        <label for="questionDescription">Description</label>
+                        <textarea 
+                            id="questionDescription" 
+                            name="questionDescription" 
+                            placeholder="Add a little context so people can understand your situation better."
+                        ></textarea>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="questionCategory">Category</label>
+                                <select id="questionCategory" name="questionCategory">
+                                    <option value="">Choose a category</option>
+                                    <option>Technology</option>
+                                    <option>Food</option>
+                                    <option>Travel</option>
+                                    <option>Shopping</option>
+                                    <option>Lifestyle</option>
+                                    <option>Study</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="questionMood">Decision Type</label>
+                                <select id="questionMood" name="questionMood">
+                                    <option value="">Choose a type</option>
+                                    <option>Quick daily choice</option>
+                                    <option>Practical comparison</option>
+                                    <option>Big personal decision</option>
+                                    <option>Just for fun</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label>Options</label>
+                        <div id="optionsContainer" class="options-container">
+                            <div class="option-input-row">
+                                <input type="text" name="option[]" placeholder="Option 1">
+                            </div>
+                            <div class="option-input-row">
+                                <input type="text" name="option[]" placeholder="Option 2">
+                            </div>
+                        </div>
+
+                        <button type="button" id="addOptionBtn" class="add-option-btn">+ Add Another Option</button>
+
+                        <div class="toggle-section">
+                            <label class="toggle-item">
+                                <input type="checkbox" id="anonymousCheck" checked>
+                                <span>Post anonymously</span>
+                            </label>
+
+                            <label class="toggle-item">
+                                <input type="checkbox" id="allowCommentsCheck" checked>
+                                <span>Allow comments</span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="submit-question-btn">Submit Question</button>
+                            <button type="reset" class="secondary-form-btn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <aside class="ask-side-panel">
+                    <div class="side-card">
+                        <h3>Tips for Better Answers</h3>
+                        <ul class="recent-list">
+                            <li>Keep your question focused on one decision.</li>
+                            <li>Make options clear and easy to compare.</li>
+                            <li>Add enough context, but keep it short.</li>
+                        </ul>
+                    </div>
+
+                    <div class="side-card">
+                        <h3>Preview</h3>
+                        <div class="preview-card">
+                            <span class="activity-badge">Anonymous</span>
+                            <h4 id="previewTitle">Your question will appear here</h4>
+                            <p id="previewDescription">
+                                Add a title and a short description to preview your post.
+                            </p>
+                            <div id="previewOptions" class="preview-options">
+                                <span class="preview-option-pill">Option 1</span>
+                                <span class="preview-option-pill">Option 2</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
+
+    <script src="ask-question.js"></script>
+</body>
+</html>

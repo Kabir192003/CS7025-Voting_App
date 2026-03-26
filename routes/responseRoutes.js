@@ -1,13 +1,9 @@
-const express = require("express");
-const router = express.Router();
+const router = require('express').Router()
+const checkAuth = require('../middleware/authMiddleware')
+const responses = require('../controllers/responseController')
 
-const responseController = require("../controllers/responseController");
-const authenticateToken = require("../middleware/authMiddleware");
+router.use(checkAuth)
+router.post('/', responses.submitResponse)
+router.get('/:questionId', responses.getResponses)
 
-// Submit a response (vote/comment)
-router.post("/", authenticateToken, responseController.submitResponse);
-
-// Get responses for a question
-router.get("/:questionId", authenticateToken, responseController.getResponses);
-
-module.exports = router;
+module.exports = router

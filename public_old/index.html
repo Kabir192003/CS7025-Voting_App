@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Support - Welcome</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="center-content min-h-screen">
+
+  <div class="auth-box">
+    <h1 class="mb-sm">Welcome Back</h1>
+    <p class="text-muted mb-xl">Sign in to your account</p>
+
+    <input type="text" id="username" placeholder="Username" aria-label="Username">
+    <input type="password" id="password" placeholder="Password" aria-label="Password">
+
+    <div class="auth-actions">
+      <button onclick="login()">Login</button>
+      <button onclick="signup()" class="secondary">Create Account</button>
+    </div>
+
+    <p id="msg" class="auth-msg"></p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

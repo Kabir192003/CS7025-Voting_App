@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This or That — Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-left">
+      <div class="auth-left-inner">
+        <div class="brand-mark">THIS OR THAT</div>
+        <h1 class="auth-display">Can’t decide?</h1>
+        <p class="auth-lead">
+          Ask anonymously, compare options clearly, and let the community help you choose.
+        </p>
+
+        <div class="auth-mini-card">
+          <div class="auth-mini-dot"></div>
+          <p>Quick polls. Clear choices. Low-pressure decisions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-right">
+      <div class="auth-card-v2">
+        <div class="auth-card-icon">?</div>
+        <h2>Welcome back</h2>
+        <p class="auth-card-text">
+          Log in to join today’s decisions on This or That.
+        </p>
+
+        <form id="loginForm">
+          <div class="auth-field">
+            <label for="username">Username</label>
+            <input id="username" type="text" placeholder="Enter your username" required />
+          </div>
+
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter your password" required />
+          </div>
+
+          <button type="submit" class="auth-primary-btn">
+            Login
+          </button>
+        </form>
+
+        <button type="button" class="auth-secondary-btn" onclick="window.location.href='register.html'">
+          Create Account
+        </button>
+      </div>
+    </section>
+  </main>
+  <script src="auth.js"></script>
+</body>
+
+</html>

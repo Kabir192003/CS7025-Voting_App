@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This or That — Create Account</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-left">
+      <div class="auth-left-inner">
+        <div class="brand-mark">THIS OR THAT</div>
+        <h1 class="auth-display">Create your account</h1>
+        <p class="auth-lead">
+          Join the community and start making decisions easier.
+        </p>
+
+        <div class="auth-mini-card">
+          <div class="auth-mini-dot"></div>
+          <p>You can personalise your feed after sign up.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-right">
+      <div class="auth-card-v2">
+        <div class="auth-card-icon">+</div>
+        <h2>Create account</h2>
+        <p class="auth-card-text">
+          Set up your details and continue to the home feed.
+        </p>
+
+        <form id="registerForm">
+          <div class="auth-field">
+            <label for="new-username">Username</label>
+            <input id="new-username" type="text" placeholder="Choose a username" required />
+          </div>
+
+          <div class="auth-field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="Enter your email" required />
+          </div>
+
+          <div class="auth-field">
+            <label for="new-password">Password</label>
+            <input id="new-password" type="password" placeholder="Create a password" required />
+          </div>
+
+          <div class="auth-field">
+            <label for="confirm-password">Confirm Password</label>
+            <input id="confirm-password" type="password" placeholder="Confirm your password" required />
+          </div>
+
+          <button type="submit" class="auth-primary-btn">
+            Create Account
+          </button>
+        </form>
+
+        <button type="button" class="auth-secondary-btn" onclick="window.location.href='login.html'">
+          Back to Login
+        </button>
+      </div>
+    </section>
+  </main>
+  <script src="auth.js"></script>
+</body>
+
+</html>

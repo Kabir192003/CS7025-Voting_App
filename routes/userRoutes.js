@@ -1,16 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router()
+const checkAuth = require('../middleware/authMiddleware')
+const users = require('../controllers/userController')
 
-const authMiddleware = require('../middleware/authMiddleware');
-const { savePreferences, getUserProfile, getUserQuestions, getUserAnswers } = require('../controllers/userController');
+router.use(checkAuth)
+router.get('/me', users.getUserProfile)
+router.put('/me', users.updateUserProfile)
+router.get('/me/questions', users.getUserQuestions)
+router.get('/me/answers', users.getUserAnswers)
+router.post('/preferences', users.savePreferences)
 
-// All routes here are protected
-router.use(authMiddleware);
-
-router.get('/me', getUserProfile);
-router.get('/me/questions', getUserQuestions);
-router.get('/me/answers', getUserAnswers);
-router.post('/preferences', savePreferences);
-
-module.exports = router;
-
+module.exports = router

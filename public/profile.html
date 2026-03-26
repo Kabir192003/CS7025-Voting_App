@@ -2,49 +2,252 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Decision Support</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This or That — Profile</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+<body class="dashboard-body">
 
-    <nav>
-        <div style="font-weight: 700; font-size: 1.2rem;">Decision Support</div>
-        <div>
-            <a href="home.html">Home</a>
-            <a href="ask.html">Ask Question</a>
-            <a href="profile.html" style="color: var(--primary);">Profile</a>
-            <a href="#" onclick="logout()" style="color: var(--danger);">Logout</a>
+  <header class="site-nav-wrap">
+    <nav class="site-nav">
+      <a href="home.html" class="brand-lockup">
+        <span class="brand-dot"></span>
+        <div class="brand-text-group">
+          <span class="brand-name">This or That</span>
+          <span class="brand-sub">community decisions</span>
         </div>
+      </a>
+
+      <div class="site-nav-links">
+        <a href="home.html">Home</a>
+        <a href="ask-question.html">Ask</a>
+        <a href="profile.html" class="active">Profile</a>
+        <a href="login.html" class="logout-link-v2">Logout</a>
+      </div>
     </nav>
+  </header>
 
-    <div class="container">
-        <div
-            style="background: var(--bg-card); padding: var(--space-xl); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: var(--space-xl);">
-            <h1 id="profile-name" style="margin-bottom: 5px;">Loading...</h1>
-            <p id="profile-meta" style="color: var(--text-muted);">Member since...</p>
+  <main class="profile-shell">
+    <section class="profile-hero-v2">
+      <div class="profile-hero-left">
+        <div class="profile-avatar-v2 image-avatar" id="profileAvatar">K</div>
+
+        <div class="profile-hero-copy">
+          <span class="profile-kicker">Your profile</span>
+          <h1 id="profileDisplayName">Kelly</h1>
+          <p id="profileBioText">
+            Curious about everyday decisions, good design, and helping people choose more clearly.
+          </p>
+
+          <div class="profile-interest-row" id="profileInterestRow">
+            <span>Technology</span>
+            <span>Food</span>
+            <span>Travel</span>
+            <span>Design</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-hero-right">
+        <a href="edit-profile.html" class="profile-edit-btn">Edit Profile</a>
+      </div>
+    </section>
+
+    <section class="profile-stats-grid">
+      <article class="profile-stat-card">
+        <p>Questions Posted</p>
+        <h2 id="statQuestionsPosted">0</h2>
+        <span>Ideas you shared</span>
+      </article>
+
+      <article class="profile-stat-card">
+        <p>Answers Contributed</p>
+        <h2 id="statAnswersContributed">0</h2>
+        <span>Choices you helped with</span>
+      </article>
+
+      <article class="profile-stat-card">
+        <p>Votes Received</p>
+        <h2 id="statVotesReceived">0</h2>
+        <span>Community responses</span>
+      </article>
+    </section>
+
+    <section class="profile-tabs-bar">
+      <div class="dashboard-tabs">
+        <button class="dashboard-tab active-tab" data-tab="questions">My Questions</button>
+        <button class="dashboard-tab" data-tab="answers">My Answers</button>
+        <button class="dashboard-tab" data-tab="preferences">Preferences</button>
+      </div>
+    </section>
+
+    <section class="profile-main-grid">
+      <div class="profile-main-column">
+
+        <div class="tab-panel active-panel" id="questions-panel">
+          <article class="profile-card-v2">
+            <div class="profile-card-top">
+              <div class="profile-card-tags">
+                <span class="meta-chip neutral">My Question</span>
+                <span class="meta-chip accent-tech">Tech</span>
+              </div>
+              <span class="profile-card-time">2 days ago</span>
+            </div>
+
+            <h3>Should I buy a Lenovo laptop or a Dell laptop?</h3>
+            <p>
+              I need something reliable for study, design work, and everyday use, but I am still undecided.
+            </p>
+
+            <div class="vote-progress-group">
+              <div class="vote-progress-item">
+                <div class="vote-progress-label">
+                  <span>Lenovo</span>
+                  <span>58% · 24 votes</span>
+                </div>
+                <div class="vote-progress-track">
+                  <div class="vote-progress-fill fill-58"></div>
+                </div>
+              </div>
+
+              <div class="vote-progress-item">
+                <div class="vote-progress-label">
+                  <span>Dell</span>
+                  <span>42% · 18 votes</span>
+                </div>
+                <div class="vote-progress-track">
+                  <div class="vote-progress-fill fill-42"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-card-footer">
+              <span>42 total votes</span>
+              <span>8 comments</span>
+            </div>
+          </article>
         </div>
 
-        <h3>My Questions</h3>
-        <div id="my-questions-list">
-            <p style="color: var(--text-muted);">Loading your history...</p>
+        <div class="tab-panel" id="answers-panel">
+          <article class="profile-card-v2">
+            <div class="profile-card-top">
+              <div class="profile-card-tags">
+                <span class="meta-chip neutral">My Answer</span>
+                <span class="meta-chip accent-study">Study</span>
+              </div>
+              <span class="profile-card-time">2 days ago</span>
+            </div>
+
+            <h3>MacBook or iPad for university study?</h3>
+            <p>
+              You answered: “MacBook will be more flexible for assignments, research, and long-term use.”
+            </p>
+
+            <div class="comment-preview-box">
+              <div class="comment-preview-top">
+                <span class="comment-count">Answer preview</span>
+              </div>
+              <p>
+                “If you need one device for writing, multitasking, and managing coursework, a MacBook is usually the
+                safer choice.”
+              </p>
+            </div>
+
+            <div class="profile-card-footer">
+              <span>18 total votes</span>
+              <span>Helpful response</span>
+            </div>
+          </article>
         </div>
 
-        <h3>My Answers</h3>
-        <div id="my-answers-list">
-            <p style="color: var(--text-muted);">Loading your answers...</p>
-        </div>
-    </div>
+        <div class="tab-panel" id="preferences-panel">
+          <article class="profile-card-v2">
+            <div class="profile-card-top">
+              <div class="profile-card-tags">
+                <span class="meta-chip neutral">Preferences</span>
+                <span class="meta-chip accent-design">Personalisation</span>
+              </div>
+            </div>
 
-    <script src="app.js"></script>
-    <script>
-        loadProfile();
-        loadUserQuestions();
-        loadUserAnswers();
-    </script>
+            <h3>Your selected interests</h3>
+            <p>
+              These preferences shape what appears in your feed and help This or That surface more relevant decisions.
+            </p>
+
+            <div class="profile-interest-row large-interest-row" id="profilePreferenceList">
+              <span>Technology</span>
+              <span>Food</span>
+              <span>Travel</span>
+              <span>Design</span>
+            </div>
+          </article>
+
+          <article class="profile-card-v2">
+            <div class="profile-card-top">
+              <div class="profile-card-tags">
+                <span class="meta-chip neutral">Profile Settings</span>
+              </div>
+            </div>
+
+            <h3>Manage your profile</h3>
+            <p>
+              Update your profile photo, nickname, gender, birthday, region, and personal bio from the Edit Profile
+              page.
+            </p>
+
+            <a href="edit-profile.html" class="quick-ask-btn">Go to Edit Profile</a>
+          </article>
+        </div>
+      </div>
+
+      <aside class="profile-side-column">
+        <div class="sidebar-card">
+          <div class="sidebar-card-head">
+            <h4>Profile Snapshot</h4>
+          </div>
+          <div class="profile-facts-list" id="profileFactsList">
+            <div><span>Gender</span><strong>Not set</strong></div>
+            <div><span>Birthday</span><strong>Not set</strong></div>
+            <div><span>Region</span><strong>Not set</strong></div>
+            <div><span>ID</span><strong>TT-2025-00421</strong></div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card-head">
+            <h4>Recent Activity</h4>
+          </div>
+          <ol class="leaderboard-list">
+            <li>
+              <span class="rank-num">01</span>
+              <div>
+                <p>Lenovo or Dell for design work?</p>
+                <span>42 votes</span>
+              </div>
+            </li>
+            <li>
+              <span class="rank-num">02</span>
+              <div>
+                <p>Burgers or ramen for lunch?</p>
+                <span>31 votes</span>
+              </div>
+            </li>
+            <li>
+              <span class="rank-num">03</span>
+              <div>
+                <p>Japan or Italy this summer?</p>
+                <span>56 interactions</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="script(profile).js"></script>
 </body>
 
 </html>
