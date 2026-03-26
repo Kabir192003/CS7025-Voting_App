@@ -1,9 +1,16 @@
 require('dotenv').config()
 const express = require('express')
+const path = require('path')
 
 const app = express()
 app.use(express.json())
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.css')) res.setHeader('Content-Type', 'text/css')
+        if (filePath.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript')
+        if (filePath.endsWith('.html')) res.setHeader('Content-Type', 'text/html')
+    }
+}))
 
 // routes
 app.use('/api/auth', require('./routes/authRoutes'))
