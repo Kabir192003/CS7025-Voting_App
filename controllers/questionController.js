@@ -39,7 +39,7 @@ exports.createQuestion = async (req, res) => {
 exports.getQuestionById = async (req, res) => {
     try {
         const [[q]] = await db.query(
-            'SELECT q.*, u.username FROM questions q JOIN users u ON q.user_id = u.user_id WHERE q.question_id = ?',
+            'SELECT q.*, SUBSTRING_INDEX(u.display_name, " ", 1) as username FROM questions q JOIN users u ON q.user_id = u.user_id WHERE q.question_id = ?',
             [req.params.id]
         )
         if (!q) return res.status(404).json({ message: 'Not found' })

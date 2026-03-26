@@ -54,7 +54,7 @@ exports.getUserProfile = async (req, res) => {
 exports.getUserQuestions = async (req, res) => {
   try {
     let [questions] = await db.query(`
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
         COUNT(r.response_id) as interaction_count
       FROM questions q JOIN users u ON q.user_id = u.user_id
        LEFT JOIN responses r ON q.question_id = r.question_id
@@ -95,7 +95,7 @@ exports.savePreferences = async (req, res) => {
 exports.getUserAnswers = async (req, res) => {
   try {
     let [questions] = await db.query(`
-          SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+          SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
             (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count,
              MAX(r.created_at) as last_interaction
           FROM responses r JOIN questions q ON r.question_id = q.question_id

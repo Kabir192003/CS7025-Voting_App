@@ -41,12 +41,12 @@ exports.getPersonalisedHome = async (req, res) => {
 
     let sql
     if (catIds.length === 0) {
-      sql = `SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+      sql = `SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
         (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
         FROM questions q JOIN users u ON q.user_id = u.user_id
         ORDER BY q.created_at DESC LIMIT 20`
     } else {
-      sql = `SELECT DISTINCT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
+      sql = `SELECT DISTINCT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
         (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count
         FROM questions q JOIN question_categories qc ON q.question_id = qc.question_id
         JOIN users u ON q.user_id = u.user_id
@@ -71,12 +71,12 @@ exports.getPersonalisedHome = async (req, res) => {
 const makeFeed = (sortDir) => async (req, res) => {
   try {
     let [questions] = await db.query(`
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, u.username,
-        COUNT(r.response_id) as interaction_count
+      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
+      COUNT(r.response_id) as interaction_count
       FROM questions q JOIN users u ON q.user_id = u.user_id
       LEFT JOIN responses r ON q.question_id = r.question_id
       GROUP BY q.question_id ORDER BY interaction_count ${sortDir}, q.created_at DESC LIMIT 20
-    `)
+      `)
     questions.forEach(q => { if (q.is_anonymous) q.username = 'Anonymous' })
     questions = await fillInDetails(questions, req.user.user_id)
 
