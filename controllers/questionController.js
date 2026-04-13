@@ -39,7 +39,7 @@ exports.createQuestion = async (req, res) => {
 exports.getQuestionById = async (req, res) => {
     try {
         const [[q]] = await db.query(
-            'SELECT q.*, SUBSTRING_INDEX(u.display_name, " ", 1) as username FROM questions q JOIN users u ON q.user_id = u.user_id WHERE q.question_id = ?',
+            'SELECT q.*, COALESCE(SUBSTRING_INDEX(u.display_name, " ", 1), u.username) as username FROM questions q JOIN users u ON q.user_id = u.user_id WHERE q.question_id = ?',
             [req.params.id]
         )
         if (!q) return res.status(404).json({ message: 'Not found' })
@@ -56,7 +56,7 @@ exports.getQuestionById = async (req, res) => {
 
         res.json({ ...q, categories: cats.map(c => c.name), options: opts })
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ message: 'Server error' })
+        console.error('getQuestionById error for id:', req.params.id, err.message, err.stack)
+        res.status(500).json({ message: 'Server error', detail: err.message })
     }
 }
