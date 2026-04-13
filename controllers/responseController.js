@@ -25,8 +25,8 @@ exports.submitResponse = async (req, res) => {
 exports.getResponses = async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT r.response_id, r.user_id, r.option_id, r.comment_text, r.created_at, SUBSTRING_INDEX(u.display_name, " ", 1) AS username ' +
-            'FROM responses r JOIN users u ON r.user_id = u.user_id WHERE r.question_id = ? ORDER BY r.created_at DESC',
+            `SELECT r.response_id, r.user_id, r.option_id, r.comment_text, r.created_at, COALESCE(SUBSTRING_INDEX(u.display_name, ' ', 1), u.username) AS username ` +
+            `FROM responses r JOIN users u ON r.user_id = u.user_id WHERE r.question_id = ? ORDER BY r.created_at DESC`,
             [req.params.questionId]
         )
         res.json(rows)
