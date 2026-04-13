@@ -34,16 +34,44 @@ function getProfile() { return profile || defaults }
 
 async function saveProfile(data) {
     const token = localStorage.getItem('token')
-    if (!token) return
+    if (!token) return false
     try {
-        await apiFetch('/api/users/me', {
+        const resp = await apiFetch('/api/users/me', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
+        if (!resp || !resp.ok) {
+            alert('Failed to save profile. Please try again.')
+            return false
+        }
+        return true
     } catch (err) {
         console.error('save failed', err)
+        alert('Failed to save profile. Please try again.')
+        return false
     }
+}
+
+// Compress and resize an image to keep base64 data manageable
+function compressImage(file, maxWidth = 400, quality = 0.7) {
+    return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            const img = new Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                let w = img.width, h = img.height
+                if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth }
+                canvas.width = w
+                canvas.height = h
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+                resolve(canvas.toDataURL('image/jpeg', quality))
+            }
+            img.src = e.target.result
+        }
+        reader.readAsDataURL(file)
+    })
 }
 
 function renderProfile() {
@@ -195,12 +223,11 @@ function setupEditPage() {
         })
 
     if (avatarInput) {
-        avatarInput.addEventListener('change', (e) => {
+        avatarInput.addEventListener('change', async (e) => {
             const file = e.target.files[0]
             if (!file) return
-            const reader = new FileReader()
-            reader.onload = (ev) => { avatarData = ev.target.result; refreshPreview() }
-            reader.readAsDataURL(file)
+            avatarData = await compressImage(file)
+            refreshPreview()
         })
     }
 
@@ -228,9 +255,11 @@ function setupEditPage() {
             interests: picked.length ? picked : defaults.interests
         }
 
-        await saveProfile(updated)
-        localStorage.setItem('selectedInterests', JSON.stringify(updated.interests))
-        window.location.href = 'profile.html'
+        const ok = await saveProfile(updated)
+        if (ok) {
+            localStorage.setItem('selectedInterests', JSON.stringify(updated.interests))
+            window.location.href = 'profile.html'
+        }
     })
 }
 
