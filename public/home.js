@@ -30,9 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function checkPrefs() {
         try {
-            const resp = await fetch('/api/users/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
+            const resp = await apiFetch('/api/users/me')
+            if (!resp) return
             if (resp.ok) {
                 const user = await resp.json()
                 if (!user.interests || user.interests.length === 0) {
@@ -78,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 picked.push(opt.textContent.trim())
             })
 
-            await fetch('/api/users/me', {
+            await apiFetch('/api/users/me', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ interests: picked })
             })
 
@@ -123,9 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         panel.innerHTML = '<p>Loading...</p>'
         try {
-            const resp = await fetch(endpoints[name], {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
+            const resp = await apiFetch(endpoints[name])
+            if (!resp) return
             if (resp.ok) {
                 const json = await resp.json()
                 loaded[name] = true
@@ -194,13 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.vote = async function (qid, optId, ev) {
         ev.stopPropagation()
-        const t = localStorage.getItem('token')
         try {
-            const resp = await fetch('/api/responses', {
+            const resp = await apiFetch('/api/responses', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question_id: qid, option_id: optId })
             })
+            if (!resp) return
             if (resp.ok) {
                 window.location.reload()
             } else {

@@ -6,10 +6,13 @@ async function showQuestion() {
     if (!qid) { box.innerHTML = '<p>No question specified.</p>'; return }
 
     try {
-        const resp = await fetch(`/api/questions/${qid}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        if (!resp.ok) { box.innerHTML = '<p>Question not found.</p>'; return }
+        const resp = await apiFetch(`/api/questions/${qid}`)
+        if (!resp) return // apiFetch redirected to login
+
+        if (!resp.ok) {
+            box.innerHTML = '<p>Question not found.</p>'
+            return
+        }
 
         const q = await resp.json()
         const date = new Date(q.created_at).toLocaleDateString()
@@ -74,11 +77,12 @@ async function showQuestion() {
             if (!txt) return
 
             try {
-                const r = await fetch('/api/responses', {
+                const r = await apiFetch('/api/responses', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question_id: qid, comment_text: txt })
                 })
+                if (!r) return
                 if (r.ok) showQuestion()
                 else {
                     const err = await r.json()
@@ -99,9 +103,9 @@ async function loadComments() {
     if (!section) return
 
     try {
-        const resp = await fetch(`/api/responses/${qid}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
+        const resp = await apiFetch(`/api/responses/${qid}`)
+        if (!resp) return
+
         if (!resp.ok) {
             section.innerHTML = '<div class="empty-state-line">Failed to load comments</div>'
             return
@@ -126,11 +130,12 @@ async function loadComments() {
 
 window.vote = async function (questionId, optionId) {
     try {
-        const resp = await fetch('/api/responses', {
+        const resp = await apiFetch('/api/responses', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question_id: questionId, option_id: optionId })
         })
+        if (!resp) return
         if (resp.ok) showQuestion()
         else {
             const err = await resp.json()

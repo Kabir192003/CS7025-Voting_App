@@ -70,12 +70,9 @@ form.addEventListener('submit', async (e) => {
     if (!token) { window.location.href = 'login.html'; return }
 
     try {
-        const resp = await fetch('/api/questions', {
+        const resp = await apiFetch('/api/questions', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 title, description: desc,
                 categories: cat ? [cat] : [],
@@ -84,6 +81,7 @@ form.addEventListener('submit', async (e) => {
                 comments_enabled: allowComments
             })
         })
+        if (!resp) return
 
         if (resp.ok) {
             window.location.href = 'home.html'

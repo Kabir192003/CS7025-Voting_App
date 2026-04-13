@@ -36,9 +36,9 @@ async function saveProfile(data) {
     const token = localStorage.getItem('token')
     if (!token) return
     try {
-        await fetch('/api/users/me', {
+        await apiFetch('/api/users/me', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
     } catch (err) {
@@ -239,9 +239,8 @@ async function init() {
     if (!token) { window.location.href = 'login.html'; return }
 
     try {
-        const resp = await fetch('/api/users/me', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
+        const resp = await apiFetch('/api/users/me')
+        if (!resp) return
         if (resp.ok) {
             const d = await resp.json()
             profile = {
@@ -313,14 +312,16 @@ function makeCards(questions, label) {
 
 async function loadActivity(token) {
     try {
-        const qResp = await fetch('/api/users/me/questions', { headers: { 'Authorization': `Bearer ${token}` } })
+        const qResp = await apiFetch('/api/users/me/questions')
+        if (!qResp) return
         if (qResp.ok) {
             const qs = await qResp.json()
             const el = document.getElementById('questions-panel')
             if (el) el.innerHTML = makeCards(qs, 'My Question')
         }
 
-        const aResp = await fetch('/api/users/me/answers', { headers: { 'Authorization': `Bearer ${token}` } })
+        const aResp = await apiFetch('/api/users/me/answers')
+        if (!aResp) return
         if (aResp.ok) {
             const ans = await aResp.json()
             const el = document.getElementById('answers-panel')
