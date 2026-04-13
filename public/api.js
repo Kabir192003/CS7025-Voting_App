@@ -1,12 +1,13 @@
 /**
- * Wrapper around fetch() that automatically handles expired/invalid tokens.
- * If any API call returns 401, the user is redirected to the login page.
+ * Wrapper around fetch() that automatically handles expired/invalid tokens
+ * and network failures. If any API call returns 401, the user is redirected
+ * to the login page. Network errors return null so callers can handle gracefully.
  */
 async function apiFetch(url, options = {}) {
     const token = localStorage.getItem('token')
     if (!token) {
         window.location.href = 'login.html'
-        return
+        return null
     }
 
     // merge auth header into whatever was passed
@@ -15,15 +16,20 @@ async function apiFetch(url, options = {}) {
         'Authorization': `Bearer ${token}`
     }
 
-    const resp = await fetch(url, options)
+    try {
+        const resp = await fetch(url, options)
 
-    if (resp.status === 401) {
-        localStorage.removeItem('token')
-        window.location.href = 'login.html'
-        return
+        if (resp.status === 401) {
+            localStorage.removeItem('token')
+            window.location.href = 'login.html'
+            return null
+        }
+
+        return resp
+    } catch (err) {
+        console.error('Network error:', err)
+        return null
     }
-
-    return resp
 }
 
 /**

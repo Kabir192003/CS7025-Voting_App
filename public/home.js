@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ).join('')
 
             const opts = q.options || []
-            let total = opts.reduce((s, o) => s + o.votes, 0)
+            let total = opts.reduce((s, o) => s + (o.votes || 0), 0)
             const realTotal = total
             if (total === 0) total = 1
 
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="vote-progress-item">
                 <div class="vote-progress-label">
                   <span>${o.option_text}</span>
-                  <span>${pct}% · ${o.votes} votes</span>
+                  <span>${pct}% · ${o.votes || 0} votes</span>
                 </div>
                 <div class="vote-progress-track">
                   <div class="vote-progress-fill" style="width: ${pct}%"></div>

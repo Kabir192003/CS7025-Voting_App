@@ -10,7 +10,11 @@ async function showQuestion() {
         if (!resp) return // apiFetch redirected to login
 
         if (!resp.ok) {
-            box.innerHTML = '<p>Question not found.</p>'
+            if (resp.status === 404) {
+                box.innerHTML = '<p>Question not found.</p>'
+            } else {
+                box.innerHTML = '<p>Something went wrong loading this question. Please try refreshing.</p>'
+            }
             return
         }
 

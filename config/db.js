@@ -10,8 +10,21 @@ const pool = mysql.createPool({
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
 })
+
+// test the connection on startup
+pool.getConnection()
+  .then(conn => {
+    console.log('db connection verified')
+    conn.release()
+  })
+  .catch(err => {
+    console.error('db connection failed:', err.message)
+  })
 
 console.log('db pool ready')
 module.exports = pool

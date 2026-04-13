@@ -47,6 +47,7 @@ exports.getUserProfile = async (req, res) => {
     )
     res.json({ ...user, interests: prefs.map(p => p.name) })
   } catch (e) {
+    console.error('getUserProfile error:', e.message)
     res.status(500).json({ message: 'Server error' })
   }
 }
@@ -54,7 +55,8 @@ exports.getUserProfile = async (req, res) => {
 exports.getUserQuestions = async (req, res) => {
   try {
     let [questions] = await db.query(`
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
+      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous,
+        COALESCE(SUBSTRING_INDEX(u.display_name, ' ', 1), u.username) AS username,
         COUNT(r.response_id) as interaction_count
       FROM questions q JOIN users u ON q.user_id = u.user_id
        LEFT JOIN responses r ON q.question_id = r.question_id
@@ -65,18 +67,19 @@ exports.getUserQuestions = async (req, res) => {
     questions = await fillInDetails(questions, req.user.user_id)
     res.json(questions)
   } catch (err) {
-    console.error(err)
+    console.error('getUserQuestions error:', err.message)
     res.status(500).json({ message: 'Server error' })
   }
 }
 
 exports.savePreferences = async (req, res) => {
-  const conn = await db.getConnection()
+  let conn
   try {
     const { categories } = req.body
     if (!Array.isArray(categories) || !categories.length)
       return res.status(400).json({ message: 'No preferences' })
 
+    conn = await db.getConnection()
     await conn.beginTransaction()
     await conn.query('DELETE FROM user_preferences WHERE user_id = ?', [req.user.user_id])
     await conn.query('INSERT INTO user_preferences (user_id, category_id) VALUES ?',
@@ -85,17 +88,19 @@ exports.savePreferences = async (req, res) => {
 
     res.json({ message: 'Saved' })
   } catch (e) {
-    await conn.rollback()
+    if (conn) await conn.rollback().catch(() => {})
+    console.error('savePreferences error:', e.message)
     res.status(500).json({ message: 'Error' })
   } finally {
-    conn.release()
+    if (conn) conn.release()
   }
 }
 
 exports.getUserAnswers = async (req, res) => {
   try {
     let [questions] = await db.query(`
-          SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous, SUBSTRING_INDEX(u.display_name, ' ', 1) AS username,
+          SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous,
+            COALESCE(SUBSTRING_INDEX(u.display_name, ' ', 1), u.username) AS username,
             (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count,
              MAX(r.created_at) as last_interaction
           FROM responses r JOIN questions q ON r.question_id = q.question_id
@@ -107,7 +112,7 @@ exports.getUserAnswers = async (req, res) => {
     questions = await fillInDetails(questions, req.user.user_id)
     res.json(questions)
   } catch (err) {
-    console.error(err)
+    console.error('getUserAnswers error:', err.message)
     res.status(500).json({ message: 'Server error' })
   }
 }
@@ -118,13 +123,14 @@ exports.updateUserProfile = async (req, res) => {
 
     await db.query(
       'UPDATE users SET display_name=?, avatar_data=?, gender=?, birthday=?, region=?, bio=? WHERE user_id=?',
-      [displayName, avatarData, gender, birthday, region, bio, req.user.user_id]
+      [displayName || null, avatarData || null, gender || null, birthday || null, region || null, bio || null, req.user.user_id]
     )
 
     // update interests if provided
     if (interests && Array.isArray(interests)) {
-      const conn = await db.getConnection()
+      let conn
       try {
+        conn = await db.getConnection()
         await conn.beginTransaction()
         await conn.query('DELETE FROM user_preferences WHERE user_id = ?', [req.user.user_id])
         if (interests.length > 0) {
@@ -136,16 +142,16 @@ exports.updateUserProfile = async (req, res) => {
         }
         await conn.commit()
       } catch (err) {
-        await conn.rollback()
-        console.error('interests update failed', err)
+        if (conn) await conn.rollback().catch(() => {})
+        console.error('interests update failed:', err.message)
       } finally {
-        conn.release()
+        if (conn) conn.release()
       }
     }
 
     res.json({ message: 'Profile updated successfully' })
   } catch (err) {
-    console.error(err)
+    console.error('updateUserProfile error:', err.message)
     res.status(500).json({ message: 'Server error' })
   }
 }

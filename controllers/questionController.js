@@ -1,12 +1,13 @@
 const db = require('../config/db')
 
 exports.createQuestion = async (req, res) => {
-    const conn = await db.getConnection()
+    let conn
     try {
         const { title, description = '', categories, options, is_anonymous, comments_enabled } = req.body
         if (!title || !Array.isArray(options) || options.length < 2)
             return res.status(400).json({ message: 'Invalid input' })
 
+        conn = await db.getConnection()
         await conn.beginTransaction()
 
         const [result] = await conn.query(
@@ -15,7 +16,7 @@ exports.createQuestion = async (req, res) => {
         )
         const qid = result.insertId
 
-        if (categories?.length) {
+        if (categories && categories.length) {
             const [found] = await conn.query('SELECT category_id FROM categories WHERE name IN (?)', [categories])
             if (found.length > 0) {
                 await conn.query('INSERT INTO question_categories (question_id, category_id) VALUES ?',
@@ -29,10 +30,11 @@ exports.createQuestion = async (req, res) => {
         await conn.commit()
         res.status(201).json({ message: 'Created', questionId: qid })
     } catch (e) {
-        await conn.rollback()
+        if (conn) await conn.rollback().catch(() => {})
+        console.error('createQuestion error:', e.message)
         res.status(500).json({ message: 'Server error' })
     } finally {
-        conn.release()
+        if (conn) conn.release()
     }
 }
 
@@ -56,7 +58,7 @@ exports.getQuestionById = async (req, res) => {
 
         res.json({ ...q, categories: cats.map(c => c.name), options: opts })
     } catch (err) {
-        console.error('getQuestionById error for id:', req.params.id, err.message, err.stack)
-        res.status(500).json({ message: 'Server error', detail: err.message })
+        console.error('getQuestionById error for id:', req.params.id, err.message)
+        res.status(500).json({ message: 'Server error' })
     }
 }
