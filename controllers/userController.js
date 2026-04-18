@@ -42,10 +42,10 @@ exports.getUserProfile = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' })
 
     const [prefs] = await db.query(
-      'SELECT c.category_id, c.name FROM user_preferences up JOIN categories c ON up.category_id = c.category_id WHERE up.user_id = ?',
+      'SELECT DISTINCT c.category_id, c.name FROM user_preferences up JOIN categories c ON up.category_id = c.category_id WHERE up.user_id = ?',
       [req.user.user_id]
     )
-    res.json({ ...user, interests: prefs.map(p => p.name) })
+    res.json({ ...user, interests: [...new Set(prefs.map(p => p.name))] })
   } catch (e) {
     console.error('getUserProfile error:', e.message)
     res.status(500).json({ message: 'Server error' })
