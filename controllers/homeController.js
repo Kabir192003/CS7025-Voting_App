@@ -97,3 +97,4 @@ const makeFeed = (sortDir) => async (req, res) => {
 
 exports.getTrendingFeed = makeFeed('DESC')
 exports.getUnansweredFeed = makeFeed('ASC')
+ 
