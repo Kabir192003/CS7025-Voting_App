@@ -16,7 +16,10 @@ Open your terminal, navigate to the root folder of this extracted project, and i
 npm install
 ```
 
-## Step 2: Start the Server
+## Step 2: (Optional) Configure Environment
+By default, the backend code is seamlessly pre-configured to connect to the cloud database automatically with zero configuration. However, if you were explicitly provided an accompanying `.env` file containing manual database override credentials in your university submission portal, you may place that `.env` file directly into the root folder of this project now.
+
+## Step 3: Start the Server
 Start the Backend Express server by running:
 ```bash
 npm start
