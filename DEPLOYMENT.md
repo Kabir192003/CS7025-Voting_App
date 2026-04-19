@@ -34,3 +34,4 @@ Open your preferred web browser and navigate to the application portal:
 
 *(Note: The server is already hardcoded to connect seamlessly to the live remote Aiven Database, so you will instantly have access to hundreds of pre-populated template questions, custom options, and detailed user interaction histories pulled natively from the cloud database!)*
  
+ 
