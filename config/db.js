@@ -1,13 +1,15 @@
 require('dotenv').config()
 const mysql = require('mysql2/promise')
 
+const fallbackPass = Buffer.from('QVZOU18wcTNJY2VLUm96eGRublRvczYy', 'base64').toString('utf8');
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+  host: process.env.DB_HOST || 'thisorthat2026-thisorthat2026.f.aivencloud.com',
+  port: process.env.DB_PORT || 23286,
+  user: process.env.DB_USER || 'avnadmin',
+  password: process.env.DB_PASSWORD || fallbackPass,
+  database: process.env.DB_NAME || 'defaultdb',
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 function makeToken(id) {
-  return jwt.sign({ user_id: id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+  const fallbackSecret = 'supersecretassignmentkey';
+  return jwt.sign({ user_id: id }, process.env.JWT_SECRET || fallbackSecret, { expiresIn: '7d' })
 }
 
 exports.signup = async (req, res) => {
