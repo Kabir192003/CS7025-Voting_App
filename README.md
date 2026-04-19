@@ -1,8 +1,8 @@
-# 📊 Decision Support & Voting System
+#  This Or That 
 
 An advanced, full-stack decision-support platform designed to surface highly personalized content to users. This platform goes beyond typical web frameworks by embedding smart categorization, real-time single-vote constraints, detailed user interaction metrics, and algorithmic feed personalization.
 
-## 🌟 Key Features (Rubric Objectives)
+##  Key Features (Rubric Objectives)
 
 *   **Algorithmic Personalization:** Home feeds are dynamically generated based on the user's category preferences (`user_preferences` table) and voting history. The algorithm prioritizes highly relevant, trending, and uniquely unanswered questions for each visitor.
 *   **Centralised Data Storage:** A robust, fully normalized `MySQL` relational database powers the entire platform. Secured efficiently via Node.js connection pooling and strict relational architecture (`schema.sql`).
@@ -17,7 +17,7 @@ An advanced, full-stack decision-support platform designed to surface highly per
 *   **Database Instance:** Remote Aiven Cloud MySQL Sandbox
 *   **Security Tools:** JSON Web Tokens (JWT), bcrypt, helmet-friendly headers
 
-## 🚀 Local Setup & Configuration
+##  Local Setup & Configuration
 
 Please refer to the comprehensive **[DEPLOYMENT.md](./DEPLOYMENT.md)** guide inside this repository. 
 
