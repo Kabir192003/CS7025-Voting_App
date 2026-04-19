@@ -1,6 +1,6 @@
 #  This Or That 
 
-**🌍 Live Demo:** [https://cs7025-this-or-that.onrender.com/login.html](https://cs7025-this-or-that.onrender.com/login.html)
+**Live Demo:** [https://cs7025-this-or-that.onrender.com/login.html](https://cs7025-this-or-that.onrender.com/login.html)
 
 An advanced, full-stack decision-support platform designed to surface highly personalized content to users. This platform goes beyond typical web frameworks by embedding smart categorization, real-time single-vote constraints, detailed user interaction metrics, and algorithmic feed personalization.
 
@@ -12,7 +12,7 @@ An advanced, full-stack decision-support platform designed to surface highly per
 *   **Architectural Abstraction:** Highly modular codebase setup. Routing interfaces (`routes/`), core business logic (`controllers/`), remote database configurations (`config/db.js`), and frontend assets are functionally isolated.
 *   **Security & Stability:** Secured using cross-session JWT tokens (`authMiddleware.js`), password hashing via `Bcrypt`, parametric SQL variables (to thwart SQL injections), and global exception guards preventing catastrophic server crashes.
 
-## ✨ Detailed User Experience (UX)
+## Detailed User Experience (UX)
 
 To ensure a highly personalized and interactive web experience, the platform is equipped with robust user-facing workflows:
 *   **Dynamic Preferences:** Users can seamlessly choose multiple category preferences from their profile. The application algorithm instantly updates their central feed to exclusively display content matching these multi-select interest parameters.
@@ -21,7 +21,7 @@ To ensure a highly personalized and interactive web experience, the platform is 
 *   **Exploration Feeds:** Users can easily pivot away from their personalized feed to explore a global **Trending Questions** page, discover macro **Trending Topics**, or dive into an **Unanswered Questions** page to help unresolved community debates.
 
 
-## 🛠 Technology Stack
+## Technology Stack
 
 *   **Frontend Endpoints:** Vanilla HTML5, CSS3, Client-side JavaScript (DOM Manipulation via DOM APIs)
 *   **Backend Engineering:** Node.js, Express.js Web Framework
@@ -34,7 +34,7 @@ Please refer to the comprehensive **[DEPLOYMENT.md](./DEPLOYMENT.md)** guide ins
 
 It contains step-by-step documentation for installing necessary node modules via `npm install`, correctly spinning up the server locally, and assigning the requisite Aiven `.env` variables required to connect to the external live database instance for final evaluation.
 
-## 🗄️ Database Architecture
+## Database Architecture
 
 A detailed breakdown of the `MySQL` entity-relationship schema layout is available directly inside **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)**. 
 
