@@ -1,3 +1,8 @@
+/**
+ * File: db.js
+ * Purpose: Configuration mapping for connection pooling to the primary MySQL Database
+ */
+
 require('dotenv').config()
 const mysql = require('mysql2/promise')
 

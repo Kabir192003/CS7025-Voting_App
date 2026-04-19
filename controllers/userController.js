@@ -1,7 +1,8 @@
 /**
  * File: userController.js
- * Purpose: Controller for managing user profile attributes, avatar uploads, and interaction aggregates
+ * Purpose: Controller for managing user profile attributes and interaction aggregates
  */
+
 const db = require('../config/db')
 const sanitize = require('../utils/sanitize')
 

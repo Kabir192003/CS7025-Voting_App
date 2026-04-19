@@ -1,3 +1,8 @@
+/**
+ * File: authMiddleware.js
+ * Purpose: Middleware ensuring secure route protection via JSON Web Tokens verification
+ */
+
 const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {

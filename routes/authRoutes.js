@@ -1,3 +1,8 @@
+/**
+ * File: authRoutes.js
+ * Purpose: Routing layer for user authentication (Login/Signup/Logout)
+ */
+
 const router = require('express').Router()
 const auth = require('../controllers/authController')
 

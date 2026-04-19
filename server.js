@@ -1,7 +1,8 @@
 /**
  * File: server.js
- * Purpose: Core application entry point, middleware configuration, and global error handling
+ * Purpose: Core application entry point, middleware router configuration, and exception management
  */
+
 require('dotenv').config()
 const express = require('express')
 const path = require('path')

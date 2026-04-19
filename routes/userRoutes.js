@@ -1,3 +1,8 @@
+/**
+ * File: userRoutes.js
+ * Purpose: Routing layer for user profiles and interaction history
+ */
+
 const router = require('express').Router()
 const checkAuth = require('../middleware/authMiddleware')
 const users = require('../controllers/userController')

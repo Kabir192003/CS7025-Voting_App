@@ -1,3 +1,8 @@
+/**
+ * File: responseController.js
+ * Purpose: Controller handling the secure recording of user votes and comments
+ */
+
 const db = require('../config/db')
 const sanitize = require('../utils/sanitize')
 

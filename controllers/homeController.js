@@ -1,7 +1,8 @@
 /**
  * File: homeController.js
- * Purpose: Controller managing dynamic feed generation based on user preferences and trends
+ * Purpose: Controller managing dynamic feed generation based on user preferences
  */
+
 const db = require('../config/db')
 
 // grabs options, categories, and user votes for a list of questions

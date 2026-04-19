@@ -1,7 +1,8 @@
 /**
  * File: questionController.js
- * Purpose: Controller managing the creation and detailed retrieval of questions and options
+ * Purpose: Controller managing the creation, validation, and retrieval of questions
  */
+
 const db = require('../config/db')
 const sanitize = require('../utils/sanitize')
 

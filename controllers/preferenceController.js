@@ -1,3 +1,8 @@
+/**
+ * File: preferenceController.js
+ * Purpose: Controller handling operations to save and retrieve user category preferences
+ */
+
 const db = require('../config/db')
 
 exports.savePreferences = async (req, res) => {

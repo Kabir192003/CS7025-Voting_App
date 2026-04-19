@@ -1,3 +1,8 @@
+/**
+ * File: homeRoutes.js
+ * Purpose: Routing layer for rendering personalized and trending home feeds
+ */
+
 const router = require('express').Router()
 const checkAuth = require('../middleware/authMiddleware')
 const home = require('../controllers/homeController')
