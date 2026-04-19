@@ -12,3 +12,4 @@ router.post('/', questions.createQuestion)
 router.get('/:id', questions.getQuestionById)
 
 module.exports = router
+ 
