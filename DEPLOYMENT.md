@@ -1,6 +1,6 @@
-# Grading Evaluation Setup Guide
+# Environment Setup Guide
 
-This document provides crystal clear, step-by-step instructions to run this full-stack application natively on your local machine for grading purposes.
+This document provides step-by-step instructions to run this full-stack application natively on your local machine.
 
 ---
 
@@ -17,7 +17,7 @@ npm install
 ```
 
 ## Step 2: (Optional) Configure Environment
-By default, the backend code is seamlessly pre-configured to connect to the cloud database automatically with zero configuration. However, if you were explicitly provided an accompanying `.env` file containing manual database override credentials in your university submission portal, you may place that `.env` file directly into the root folder of this project now.
+By default, the backend code is seamlessly pre-configured to connect to the cloud database automatically with zero configuration. However, if you were explicitly provided an accompanying `.env` file containing manual database override credentials by the administrator, you may place that `.env` file directly into the root folder of this project now.
 
 ## Step 3: Start the Server
 Start the Backend Express server by running:
