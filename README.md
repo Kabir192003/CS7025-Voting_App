@@ -12,6 +12,15 @@ An advanced, full-stack decision-support platform designed to surface highly per
 *   **Architectural Abstraction:** Highly modular codebase setup. Routing interfaces (`routes/`), core business logic (`controllers/`), remote database configurations (`config/db.js`), and frontend assets are functionally isolated.
 *   **Security & Stability:** Secured using cross-session JWT tokens (`authMiddleware.js`), password hashing via `Bcrypt`, parametric SQL variables (to thwart SQL injections), and global exception guards preventing catastrophic server crashes.
 
+## ✨ Detailed User Experience (UX)
+
+To ensure a highly personalized and interactive web experience, the platform is equipped with robust user-facing workflows:
+*   **Dynamic Preferences:** Users can seamlessly choose multiple category preferences from their profile. The application algorithm instantly updates their central feed to exclusively display content matching these multi-select interest parameters.
+*   **Deep Interaction:** Users are able to ask complex questions, bind them to multiple topics, and choose whether to allow open comments from the public community beneath their post.
+*   **Anonymous Posting:** A privacy toggle allows users to strip their identity and post questions completely anonymously.
+*   **Exploration Feeds:** Users can easily pivot away from their personalized feed to explore a global **Trending Questions** page, discover macro **Trending Topics**, or dive into an **Unanswered Questions** page to help unresolved community debates.
+
+
 ## 🛠 Technology Stack
 
 *   **Frontend Endpoints:** Vanilla HTML5, CSS3, Client-side JavaScript (DOM Manipulation via DOM APIs)
