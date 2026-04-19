@@ -1,5 +1,7 @@
 #  This Or That 
 
+**🌍 Live Demo:** [https://cs7025-this-or-that.onrender.com/login.html](https://cs7025-this-or-that.onrender.com/login.html)
+
 An advanced, full-stack decision-support platform designed to surface highly personalized content to users. This platform goes beyond typical web frameworks by embedding smart categorization, real-time single-vote constraints, detailed user interaction metrics, and algorithmic feed personalization.
 
 ##  Key Features (Rubric Objectives)
