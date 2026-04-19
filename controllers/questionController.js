@@ -71,4 +71,4 @@ exports.getQuestionById = async (req, res) => {
         console.error('getQuestionById error for id:', req.params.id, err.message)
         res.status(500).json({ message: 'Server error' })
     }
-}
+} 
