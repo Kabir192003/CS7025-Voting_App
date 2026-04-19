@@ -39,3 +39,4 @@ It contains step-by-step documentation for installing necessary node modules via
 A detailed breakdown of the `MySQL` entity-relationship schema layout is available directly inside **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)**. 
 
 If tasked with evaluating the data logic offline independently of the active Aiven cloud service, you may natively run `node scripts/seed_data.js` to locally reconstruct the database and populate the server with hundreds of algorithmic benchmark scenarios.
+ 
