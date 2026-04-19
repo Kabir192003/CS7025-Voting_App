@@ -58,3 +58,4 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
+ 
