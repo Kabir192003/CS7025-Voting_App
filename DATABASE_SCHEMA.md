@@ -67,3 +67,4 @@ Here is the database schema inferred from the codebase (`scripts/seed_data.js` a
 - **Foreign Keys:**
   - `user_id` references `users(user_id)`
   - `category_id` references `categories(category_id)`
+ 
