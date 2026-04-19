@@ -1,9 +1,14 @@
 const db = require('../config/db')
+const sanitize = require('../utils/sanitize')
 
 exports.createQuestion = async (req, res) => {
     let conn
     try {
-        const { title, description = '', categories, options, is_anonymous, comments_enabled } = req.body
+        const { categories, is_anonymous, comments_enabled } = req.body
+        const title = sanitize(req.body.title)
+        const description = sanitize(req.body.description) || ''
+        const options = Array.isArray(req.body.options) ? req.body.options.map(o => sanitize(o)) : []
+
         if (!title || !Array.isArray(options) || options.length < 2)
             return res.status(400).json({ message: 'Invalid input' })
 

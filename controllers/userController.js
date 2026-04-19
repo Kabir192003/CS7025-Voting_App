@@ -1,4 +1,5 @@
 const db = require('../config/db')
+const sanitize = require('../utils/sanitize')
 
 // same helper as home controller - pulls in options/categories/votes for questions
 async function fillInDetails(questions, userId) {
@@ -119,7 +120,9 @@ exports.getUserAnswers = async (req, res) => {
 
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { displayName, avatarData, gender, birthday, region, bio, interests } = req.body
+    const { avatarData, gender, birthday, region, interests } = req.body
+    const displayName = sanitize(req.body.displayName)
+    const bio = sanitize(req.body.bio)
 
     await db.query(
       'UPDATE users SET display_name=?, avatar_data=?, gender=?, birthday=?, region=?, bio=? WHERE user_id=?',

@@ -1,8 +1,10 @@
 const db = require('../config/db')
+const sanitize = require('../utils/sanitize')
 
 exports.submitResponse = async (req, res) => {
     try {
-        const { question_id, option_id, comment_text } = req.body
+        const { question_id, option_id } = req.body
+        const comment_text = sanitize(req.body.comment_text)
         if (!question_id || (!option_id && !comment_text))
             return res.status(400).json({ message: 'Invalid input' })
 
