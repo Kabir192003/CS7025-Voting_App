@@ -7,7 +7,12 @@ const EXAMPLES = {
   Style: 'Trainers or boots?', Relationships: 'Text back now or later?', Entertainment: 'Book or series first?', Everyday: 'Shower am or pm?'
 }
 
-const me = await api.get('/users/me')
+let me
+try { me = await api.get('/users/me') } catch (e) {
+  clear($('#app')).append(h('div', { class: 'empty-state', role: 'alert' }, h('h3', { text: 'Can’t reach the server' }), h('p', { text: e.message }),
+    h('button', { class: 'btn btn-primary', type: 'button', text: 'Try again', on: { click: () => location.reload() } })))
+  await new Promise(() => {})
+}
 const picked = new Set(me.user.topics)
 const root = $('#app')
 

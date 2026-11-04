@@ -64,7 +64,16 @@ function notificationsPanel(bellBadge) {
  * @returns {Promise<{user, stats, pending_outcomes}>}
  */
 export async function mountShell(active) {
-  const me = await api.get('/users/me')
+  let me
+  try { me = await api.get('/users/me') } catch (e) {
+    // Never leave a blank page: say what happened and offer a retry.
+    const app = $('#app')
+    clear(app).append(h('div', { class: 'empty-state', role: 'alert', style: { 'margin-top': '48px' } },
+      h('h3', { text: 'Can’t reach the server' }), h('p', { text: e.message }),
+      h('p', { class: 'mono muted', style: { 'font-size': '12px' }, text: 'If you run this app: open /api/health. If it isn’t {"ok":true}, check the server logs and environment variables.' }),
+      h('button', { class: 'btn btn-primary', type: 'button', text: 'Try again', on: { click: () => location.reload() } })))
+    return new Promise(() => {}) // nothing else on this page can run without a session
+  }
   const { user } = me
 
   // ---- header
