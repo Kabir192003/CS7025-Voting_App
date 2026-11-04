@@ -52,7 +52,8 @@ The host provides `PORT`. Health check path: `/api/health`. Use the host's `http
 1. Add New → Project → import this GitHub repo. Leave the framework as "Other"; the build settings come from `vercel.json`.
 2. Environment Variables: `NODE_ENV=production`, `TRUST_PROXY=1`, `JWT_SECRET`, and `DATABASE_URL`.
 3. For `DATABASE_URL` use Supabase's **Transaction pooler** string (port `6543`, under Connect) so many short-lived function instances share a few database connections.
-4. Deploy. Vercel serves `public/` from its CDN and runs the Express app as one function for `/api/*`.
+4. Paste the **real** connection string, with your database password filled in. Pasting a placeholder is the most common mistake: the function then fails on startup and `/api/health` reports `DATABASE_URL is not a valid connection string`.
+5. Deploy. `vercel.json` pins the function to `dub1` (Dublin) to sit next to a `eu-west-1` Supabase database; change `regions` if your database is elsewhere. Vercel serves `public/` from its CDN and runs the Express app as one function for `/api/*`.
 
 Serverless caveats: the in-memory rate limits and the login lockout are kept per function instance, so they slow brute-force attempts but are not exact across instances. Cold starts add a moment to the first request after idle time. Run `npm run migrate` from your machine, never from the function.
 
