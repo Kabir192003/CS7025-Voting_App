@@ -27,7 +27,8 @@ async function request(method, path, body) {
       location.href = `login.html?next=${next}`
       return new Promise(() => {}) // navigation in flight
     }
-    throw new ApiError(res.status, err.code || 'error', err.message || 'Something went wrong. Try again.', err.fields)
+    const fallback = res.status >= 500 ? `The server isn’t responding properly (HTTP ${res.status}). Try again in a moment.` : 'Something went wrong. Try again.'
+    throw new ApiError(res.status, err.code || 'error', err.message || fallback, err.fields)
   }
   return data
 }
