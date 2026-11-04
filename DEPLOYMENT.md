@@ -48,6 +48,14 @@ The host provides `PORT`. Health check path: `/api/health`. Use the host's `http
 2. Variables tab → add the table above.
 3. Settings → Networking → Generate domain.
 
+**Vercel** (serverless; `vercel.json` and `api/index.js` are already in the repo)
+1. Add New → Project → import this GitHub repo. Leave the framework as "Other"; the build settings come from `vercel.json`.
+2. Environment Variables: `NODE_ENV=production`, `TRUST_PROXY=1`, `JWT_SECRET`, and `DATABASE_URL`.
+3. For `DATABASE_URL` use Supabase's **Transaction pooler** string (port `6543`, under Connect) so many short-lived function instances share a few database connections.
+4. Deploy. Vercel serves `public/` from its CDN and runs the Express app as one function for `/api/*`.
+
+Serverless caveats: the in-memory rate limits and the login lockout are kept per function instance, so they slow brute-force attempts but are not exact across instances. Cold starts add a moment to the first request after idle time. Run `npm run migrate` from your machine, never from the function.
+
 **Render**: New Web Service from the repo, build `npm install`, start `npm start`, health check `/api/health`, add the variables.
 
 **Fly.io, Koyeb, Cloud Run, a VPS**: anything that runs Docker works with the included `Dockerfile` (`docker build -t this-or-that . && docker run -p 4000:4000 --env-file .env this-or-that`).

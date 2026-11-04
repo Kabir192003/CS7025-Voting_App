@@ -58,5 +58,6 @@ module.exports = Object.freeze({
   bcryptRounds: int('BCRYPT_ROUNDS', 12),
   sessionDays: 7,
   voteGraceSeconds: int('VOTE_GRACE_SECONDS', 600),
-  db: { connectionString: databaseUrl, ssl: sslConfig(databaseUrl), max: int('DB_POOL_SIZE', 8) }
+  // Serverless instances are many and short-lived: one connection each, shared through Supabase's pooler.
+  db: { connectionString: databaseUrl, ssl: sslConfig(databaseUrl), max: int('DB_POOL_SIZE', process.env.VERCEL ? 1 : 8) }
 })
