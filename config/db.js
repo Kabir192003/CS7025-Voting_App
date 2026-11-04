@@ -1,40 +1,46 @@
 /**
- * File: db.js
- * Purpose: Configuration mapping for connection pooling to the primary MySQL Database
+ * Postgres pool (Supabase or any Postgres). SQL is written with `?` placeholders
+ * and converted to $1, $2 ... so dynamic queries stay easy to assemble.
  */
+const { Pool, types } = require('pg')
+const env = require('./env')
 
-require('dotenv').config()
-const mysql = require('mysql2/promise')
+types.setTypeParser(20, (v) => parseInt(v, 10))   // bigint (COUNT, SUM) -> number
+types.setTypeParser(1700, (v) => parseFloat(v))   // numeric -> number
+types.setTypeParser(1082, (v) => v)               // date -> 'YYYY-MM-DD' string
 
-const fallbackPass = Buffer.from('QVZOU18wcTNJY2VLUm96eGRublRvczYy', 'base64').toString('utf8');
+const toPg = (sql) => { let i = 0; return sql.replace(/\?/g, () => `$${++i}`) }
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'thisorthat2026-thisorthat2026.f.aivencloud.com',
-  port: process.env.DB_PORT || 23286,
-  user: process.env.DB_USER || 'avnadmin',
-  password: process.env.DB_PASSWORD || fallbackPass,
-  database: process.env.DB_NAME || 'defaultdb',
-  ssl: { rejectUnauthorized: false },
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  connectTimeout: 10000,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 10000
+const pool = new Pool({ ...env.db, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 })
+pool.on('error', (err) => console.error(JSON.stringify({ level: 'error', message: 'idle client error', error: err.message })))
+
+const wrap = (client) => ({
+  /** @returns {Promise<{rows: any[], rowCount: number}>} */
+  query: (sql, params = []) => client.query(toPg(sql), params),
+  /** First row or undefined. */
+  one: async (sql, params = []) => (await client.query(toPg(sql), params)).rows[0]
 })
 
-// test the connection on startup
-pool.getConnection()
-  .then(conn => {
-    console.log('db connection verified')
-    conn.release()
-  })
-  .catch(err => {
-    console.error('db connection failed:', err.message)
-  })
+const db = {
+  ...wrap(pool),
+  /** Run `fn(tx)` inside a transaction; rolls back on any throw. */
+  async tx(fn) {
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const result = await fn(wrap(client))
+      await client.query('COMMIT')
+      return result
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw err
+    } finally {
+      client.release()
+    }
+  },
+  /** Raw pg client for the migrator (needs session-level advisory locks). */
+  connect: () => pool.connect(),
+  end: () => pool.end()
+}
 
-console.log('db pool ready')
-module.exports = pool
- 
- 
- 
+module.exports = db
