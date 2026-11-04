@@ -36,7 +36,10 @@ function bool(name, fallback = false) {
  */
 function sslConfig(connectionString) {
   const mode = (process.env.DB_SSL || '').toLowerCase()
-  const host = new URL(connectionString).hostname
+  let host
+  try { host = new URL(connectionString).hostname } catch {
+    throw new Error('DATABASE_URL is not a valid connection string. Check for a leftover [YOUR-PASSWORD] placeholder, and URL-encode special characters in the password (@ becomes %40).')
+  }
   const local = ['localhost', '127.0.0.1', '::1'].includes(host)
   if (mode === 'disable' || (!mode && local)) return false
   const ca = process.env.DB_SSL_CA
