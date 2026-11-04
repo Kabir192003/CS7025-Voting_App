@@ -1,166 +1,103 @@
-/**
- * File: userController.js
- * Purpose: Controller for managing user profile attributes and interaction aggregates
- */
-
 const db = require('../config/db')
-const sanitize = require('../utils/sanitize')
+const asyncHandler = require('../lib/async')
+const { conflict } = require('../lib/errors')
+const { schemas, feedQuery, parse } = require('../lib/validate')
+const C = require('../lib/constants')
+const { listPolls } = require('../lib/polls')
 
-// same helper as home controller - pulls in options/categories/votes for questions
-async function fillInDetails(questions, userId) {
-  if (!questions.length) return questions
-  const ids = questions.map(q => q.question_id)
+async function streakDays(userId) {
+  const { rows } = await db.query("SELECT DISTINCT to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS d FROM votes WHERE user_id = ? ORDER BY d DESC LIMIT 400", [userId])
+  if (!rows.length) return 0
+  const day = (offset) => new Date(Date.now() - offset * 86400000).toISOString().slice(0, 10)
+  const days = new Set(rows.map((r) => r.d))
+  const start = days.has(day(0)) ? 0 : days.has(day(1)) ? 1 : -1
+  if (start < 0) return 0
+  let streak = 0
+  while (days.has(day(start + streak))) streak++
+  return streak
+}
 
-  const [opts] = await db.query(
-    'SELECT o.option_id, o.question_id, o.option_text, (SELECT COUNT(*) FROM responses WHERE option_id = o.option_id) as votes FROM options o WHERE o.question_id IN (?)',
-    [ids]
+async function stats(userId) {
+  const asked = await db.one("SELECT COUNT(*) AS polls, COALESCE(SUM(votes_total), 0) AS received FROM questions WHERE user_id = ? AND status <> 'removed'", [userId])
+  const cast = await db.one('SELECT COUNT(*) AS n FROM votes WHERE user_id = ?', [userId])
+  const conv = await db.one('SELECT COALESCE(SUM(convincing_count), 0) AS n FROM arguments WHERE user_id = ? AND hidden = false', [userId])
+  // "With the crowd": your side was the strict majority on polls with enough votes to call
+  const { rows: byTopic } = await db.query(
+    `SELECT c.name AS topic, COUNT(*) AS n,
+            SUM(CASE WHEN (v.option_id = oa.option_id AND oa.votes_count > ob.votes_count) OR (v.option_id = ob.option_id AND ob.votes_count > oa.votes_count) THEN 1 ELSE 0 END) AS majority
+     FROM votes v
+     JOIN questions q ON q.question_id = v.question_id AND q.status <> 'removed'
+     JOIN options oa ON oa.question_id = q.question_id AND oa.position = 0
+     JOIN options ob ON ob.question_id = q.question_id AND ob.position = 1
+     JOIN categories c ON c.category_id = q.category_id
+     WHERE v.user_id = ? AND q.votes_total >= ? AND oa.votes_count <> ob.votes_count
+     GROUP BY c.category_id, c.name ORDER BY n DESC`,
+    [userId, C.MIN_VOTES_TO_CALL]
   )
-  const [cats] = await db.query(
-    'SELECT qc.question_id, c.name FROM question_categories qc JOIN categories c ON qc.category_id = c.category_id WHERE qc.question_id IN (?)',
-    [ids]
-  )
-
-  let voted = {}
-  if (userId) {
-    const [rows] = await db.query('SELECT question_id, option_id FROM responses WHERE user_id = ? AND question_id IN (?)', [userId, ids])
-    rows.forEach(r => voted[r.question_id] = r.option_id)
+  const total = byTopic.reduce((s, r) => s + r.n, 0)
+  const maj = byTopic.reduce((s, r) => s + r.majority, 0)
+  return {
+    votes_cast: cast.n,
+    polls_asked: asked.polls,
+    votes_received: asked.received,
+    convincing_received: conv.n,
+    streak_days: await streakDays(userId),
+    with_majority_pct: total ? Math.round((maj / total) * 100) : null,
+    alignment: byTopic.map((r) => ({ topic: r.topic, n: r.n, pct: Math.round((r.majority / r.n) * 100) }))
   }
+}
 
-  return questions.map(q => {
-    q.options = opts.filter(o => o.question_id === q.question_id)
-    q.categories = cats.filter(c => c.question_id === q.question_id).map(c => c.name)
-    q.user_voted_option_id = voted[q.question_id] || null
-    return q
+exports.me = asyncHandler(async (req, res) => {
+  const id = req.user.id
+  const u = await db.one('SELECT user_id, username, email, display_name, avatar_data, gender, birthday, region, bio, created_at FROM users WHERE user_id = ?', [id])
+  const { rows: topics } = await db.query('SELECT c.name FROM user_preferences up JOIN categories c ON c.category_id = up.category_id WHERE up.user_id = ? AND c.name = ANY(?::text[]) ORDER BY c.sort_order', [id, C.TOPICS])
+  const pending = await listPolls(id, {
+    where: ['q.user_id = ?', "q.status = 'open'", 'q.closes_at <= now()', 'q.outcome_option_id IS NULL', 'q.votes_total > 0'],
+    params: [id], order: 'q.closes_at DESC', limit: 3, offset: 0
   })
-}
+  res.json({
+    user: {
+      id: u.user_id, username: u.username, email: u.email || '', display_name: u.display_name || u.username,
+      avatar: u.avatar_data || null, gender: u.gender || '', birthday: u.birthday || '',
+      region: u.region || '', bio: u.bio || '', created_at: u.created_at,
+      topics: topics.map((t) => t.name)
+    },
+    stats: await stats(id),
+    pending_outcomes: pending.polls
+  })
+})
 
-exports.getUserProfile = async (req, res) => {
-  try {
-    const [[user]] = await db.query(
-      `SELECT user_id, username, email, display_name as displayName, avatar_data as avatarData,
-            gender, birthday, region, bio, created_at,
-           (SELECT COUNT(*) FROM questions WHERE user_id = users.user_id) as questionsPosted,
-           (SELECT COUNT(*) FROM responses WHERE user_id = users.user_id) as answersContributed,
-           (SELECT COUNT(*) FROM responses r JOIN questions q ON r.question_id = q.question_id WHERE q.user_id = users.user_id) as votesReceived
-          FROM users WHERE user_id = ?`,
-      [req.user.user_id]
-    )
-    if (!user) return res.status(404).json({ message: 'User not found' })
-
-    const [prefs] = await db.query(
-      'SELECT DISTINCT c.category_id, c.name FROM user_preferences up JOIN categories c ON up.category_id = c.category_id WHERE up.user_id = ?',
-      [req.user.user_id]
-    )
-    res.json({ ...user, interests: [...new Set(prefs.map(p => p.name))] })
-  } catch (e) {
-    console.error('getUserProfile error:', e.message)
-    res.status(500).json({ message: 'Server error' })
+exports.update = asyncHandler(async (req, res) => {
+  const d = parse(schemas.profile, req.body)
+  const sets = [], vals = []
+  const map = { display_name: 'display_name', bio: 'bio', gender: 'gender', birthday: 'birthday', region: 'region', email: 'email', avatar: 'avatar_data' }
+  for (const [key, col] of Object.entries(map)) {
+    if (d[key] === undefined) continue
+    sets.push(`${col} = ?`)
+    vals.push(d[key] === '' ? null : d[key])
   }
-}
+  if (sets.length) await db.query(`UPDATE users SET ${sets.join(', ')} WHERE user_id = ?`, [...vals, req.user.id])
+  return exports.me(req, res)
+})
 
-exports.getUserQuestions = async (req, res) => {
-  try {
-    let [questions] = await db.query(`
-      SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous,
-        COALESCE(SUBSTRING_INDEX(u.display_name, ' ', 1), u.username) AS username,
-        COUNT(r.response_id) as interaction_count
-      FROM questions q JOIN users u ON q.user_id = u.user_id
-       LEFT JOIN responses r ON q.question_id = r.question_id
-      WHERE q.user_id = ? GROUP BY q.question_id ORDER BY q.created_at DESC
-    `, [req.user.user_id])
+exports.setTopics = asyncHandler(async (req, res) => {
+  const { topics } = parse(schemas.topics, req.body)
+  const { rows: cats } = await db.query('SELECT category_id FROM categories WHERE name = ANY(?::text[])', [topics])
+  if (!cats.length) throw conflict('Unknown topics')
+  await db.tx(async (tx) => {
+    await tx.query('DELETE FROM user_preferences WHERE user_id = ?', [req.user.id])
+    await tx.query('INSERT INTO user_preferences (user_id, category_id) SELECT ?::int, unnest(?::int[])', [req.user.id, cats.map((c) => c.category_id)])
+  })
+  res.json({ topics })
+})
 
-    questions.forEach(q => { if (q.is_anonymous) q.username = 'Anonymous' })
-    questions = await fillInDetails(questions, req.user.user_id)
-    res.json(questions)
-  } catch (err) {
-    console.error('getUserQuestions error:', err.message)
-    res.status(500).json({ message: 'Server error' })
-  }
-}
-
-exports.savePreferences = async (req, res) => {
-  let conn
-  try {
-    const { categories } = req.body
-    if (!Array.isArray(categories) || !categories.length)
-      return res.status(400).json({ message: 'No preferences' })
-
-    conn = await db.getConnection()
-    await conn.beginTransaction()
-    await conn.query('DELETE FROM user_preferences WHERE user_id = ?', [req.user.user_id])
-    await conn.query('INSERT INTO user_preferences (user_id, category_id) VALUES ?',
-      [categories.map(c => [req.user.user_id, c])])
-    await conn.commit()
-
-    res.json({ message: 'Saved' })
-  } catch (e) {
-    if (conn) await conn.rollback().catch(() => {})
-    console.error('savePreferences error:', e.message)
-    res.status(500).json({ message: 'Error' })
-  } finally {
-    if (conn) conn.release()
-  }
-}
-
-exports.getUserAnswers = async (req, res) => {
-  try {
-    let [questions] = await db.query(`
-          SELECT q.question_id, q.title, q.description, q.created_at, q.is_anonymous,
-            COALESCE(SUBSTRING_INDEX(u.display_name, ' ', 1), u.username) AS username,
-            (SELECT COUNT(*) FROM responses WHERE question_id = q.question_id) as interaction_count,
-             MAX(r.created_at) as last_interaction
-          FROM responses r JOIN questions q ON r.question_id = q.question_id
-          JOIN users u ON q.user_id = u.user_id
-          WHERE r.user_id = ? GROUP BY q.question_id ORDER BY last_interaction DESC
-        `, [req.user.user_id])
-
-    questions.forEach(q => { if (q.is_anonymous) q.username = 'Anonymous' })
-    questions = await fillInDetails(questions, req.user.user_id)
-    res.json(questions)
-  } catch (err) {
-    console.error('getUserAnswers error:', err.message)
-    res.status(500).json({ message: 'Server error' })
-  }
-}
-
-exports.updateUserProfile = async (req, res) => {
-  try {
-    const { avatarData, gender, birthday, region, interests } = req.body
-    const displayName = sanitize(req.body.displayName)
-    const bio = sanitize(req.body.bio)
-
-    await db.query(
-      'UPDATE users SET display_name=?, avatar_data=?, gender=?, birthday=?, region=?, bio=? WHERE user_id=?',
-      [displayName || null, avatarData || null, gender || null, birthday || null, region || null, bio || null, req.user.user_id]
-    )
-
-    // update interests if provided
-    if (interests && Array.isArray(interests)) {
-      let conn
-      try {
-        conn = await db.getConnection()
-        await conn.beginTransaction()
-        await conn.query('DELETE FROM user_preferences WHERE user_id = ?', [req.user.user_id])
-        if (interests.length > 0) {
-          const [found] = await conn.query('SELECT category_id, name FROM categories WHERE name IN (?)', [interests])
-          if (found.length > 0) {
-            const rows = found.map(c => [req.user.user_id, c.category_id])
-            await conn.query('INSERT INTO user_preferences (user_id, category_id) VALUES ?', [rows])
-          }
-        }
-        await conn.commit()
-      } catch (err) {
-        if (conn) await conn.rollback().catch(() => {})
-        console.error('interests update failed:', err.message)
-      } finally {
-        if (conn) conn.release()
-      }
-    }
-
-    res.json({ message: 'Profile updated successfully' })
-  } catch (err) {
-    console.error('updateUserProfile error:', err.message)
-    res.status(500).json({ message: 'Server error' })
-  }
-}
- 
+/** Your decisions: asked, voted on, or saved. */
+exports.polls = asyncHandler(async (req, res) => {
+  const f = parse(feedQuery, req.query)
+  const tab = f.tab || 'asked'
+  const spec = { limit: f.limit, offset: f.offset }
+  if (tab === 'asked') Object.assign(spec, { where: ['q.user_id = ?'], params: [req.user.id], order: 'q.created_at DESC' })
+  if (tab === 'voted') Object.assign(spec, { where: ['v.option_id IS NOT NULL'], order: 'v.created_at DESC' })
+  if (tab === 'saved') Object.assign(spec, { where: ['s.user_id IS NOT NULL'], order: 's.created_at DESC' })
+  res.json({ tab, ...(await listPolls(req.user.id, spec)) })
+})

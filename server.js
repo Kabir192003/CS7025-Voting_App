@@ -1,49 +1,28 @@
-/**
- * File: server.js
- * Purpose: Core application entry point, middleware router configuration, and exception management
- */
+/** Process entry point: boot checks, optional migrations, graceful shutdown. */
+const env = require('./config/env')
+const db = require('./config/db')
+const createApp = require('./app')
+const { migrate } = require('./lib/migrator')
 
-require('dotenv').config()
-const express = require('express')
-const path = require('path')
+async function main() {
+  await db.query('SELECT 1') // fail fast if the database is unreachable or misconfigured
+  if (env.autoMigrate) await migrate(db)
 
-const app = express()
-app.use(express.json({ limit: '10mb' }))
-app.use(express.static(path.join(__dirname, 'public'), {
-    setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.css')) res.setHeader('Content-Type', 'text/css')
-        if (filePath.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript')
-        if (filePath.endsWith('.html')) res.setHeader('Content-Type', 'text/html')
-    }
-}))
+  const server = createApp().listen(env.port, () => console.log(JSON.stringify({ level: 'info', message: `listening on ${env.port}` })))
+  server.requestTimeout = 15000
+  server.headersTimeout = 20000
 
-// routes
-app.use('/api/auth', require('./routes/authRoutes'))
-app.use('/api/questions', require('./routes/questionRoutes'))
-app.use('/api/responses', require('./routes/responseRoutes'))
-app.use('/api/users', require('./routes/userRoutes'))
-app.use('/api/preferences', require('./routes/preferenceRoutes'))
-app.use('/api/home', require('./routes/homeRoutes'))
+  const shutdown = (signal) => {
+    console.log(JSON.stringify({ level: 'info', message: `${signal} received, shutting down` }))
+    server.close(async () => { await db.end().catch(() => {}); process.exit(0) })
+    setTimeout(() => process.exit(1), 10000).unref()
+  }
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
+}
 
-app.get('/', (req, res) => res.redirect('/home.html'))
+// Unknown state is not safe to keep serving from: log and exit, the platform restarts us.
+process.on('unhandledRejection', (err) => { console.error(JSON.stringify({ level: 'fatal', message: 'unhandledRejection', error: String(err?.stack || err) })); process.exit(1) })
+process.on('uncaughtException', (err) => { console.error(JSON.stringify({ level: 'fatal', message: 'uncaughtException', error: String(err?.stack || err) })); process.exit(1) })
 
-// catch-all for unknown API routes
-app.use('/api/*', (req, res) => {
-    res.status(404).json({ message: 'API endpoint not found' })
-})
-
-// global error handler — prevents server crash on unhandled errors
-app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err.stack || err)
-    res.status(500).json({ message: 'Internal server error' })
-})
-
-// catch unhandled rejections so the server never crashes
-process.on('unhandledRejection', (err) => {
-    console.error('Unhandled rejection:', err)
-})
-
-const port = process.env.PORT || 4000
-app.listen(port, () => console.log('server up on port ' + port))
- 
- 
+main().catch((err) => { console.error('Failed to start:', err.message); process.exit(1) })

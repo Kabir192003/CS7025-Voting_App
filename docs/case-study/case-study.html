@@ -83,7 +83,7 @@
   </div>
   <div class="grid3" style="color: #D6D9EA; font-size: 9pt; border-top: 1px solid #3D4160; padding-top: 5mm">
     <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">ROLE</div>Research, product design, full-stack engineering</div>
-    <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">CONTEXT</div>CS7025, Trinity College Dublin. Node.js, Express, MySQL</div>
+    <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">CONTEXT</div>CS7025, Trinity College Dublin. Node.js, Express, Postgres on Supabase</div>
     <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">AUTHOR</div>Kabir</div>
   </div>
 </section>
@@ -373,21 +373,21 @@
 
 <!-- 9. BACKEND -->
 <section class="page">
-  <p class="eyebrow">08 · Backend plan</p>
+  <p class="eyebrow">08 · Backend</p>
   <h2>Hardening the engine</h2>
-  <p class="lead">The redesign needs a backend that enforces its rules. Each change below answers an audit finding or a category in the OWASP Top 10 (2025). This section is the implementation plan; the build follows sign-off on the design.</p>
+  <p class="lead">The redesign needs a backend that enforces its rules. Each change below answers an audit finding or a category in the OWASP Top 10 (2025). Every row below is implemented in the repository and covered by tests.</p>
 
   <table>
     <thead><tr><th style="width: 30%">Change</th><th>Detail</th><th style="width: 22%">Answers</th></tr></thead>
     <tbody>
       <tr><td><strong>Secrets out of code</strong></td><td>All credentials come from environment variables. The server refuses to start without them. Ship <code>.env.example</code>. Rotate the leaked database password.</td><td>A02 Misconfiguration</td></tr>
-      <tr><td><strong>Separate votes from arguments</strong></td><td><code>votes</code> (one per user per poll, enforced by a key) and <code>arguments</code> (many per user, each tagged with a side). A vote is only accepted if the option belongs to the poll and the poll is open.</td><td>A01 Access Control</td></tr>
+      <tr><td><strong>Separate votes from arguments</strong></td><td><code>votes</code> (one per user per poll, enforced by a key) and <code>arguments</code> (up to five per user, each tagged with a side). A vote is only accepted if the poll is open, and a composite foreign key makes it impossible for an option from another poll to be used.</td><td>A01 Access Control</td></tr>
       <tr><td><strong>Validation at the edge</strong></td><td>Every request body is checked against a schema (types, lengths, enums). Text is stored raw and escaped on output; the front end renders with <code>textContent</code>.</td><td>A05 Injection</td></tr>
-      <tr><td><strong>Headers and limits</strong></td><td>Helmet with a strict Content Security Policy. Rate limits on sign-in, sign-up, voting and posting. 100 KB request limit. Avatars uploaded as files and type-checked.</td><td>A02, A07 Authentication</td></tr>
+      <tr><td><strong>Headers and limits</strong></td><td>Helmet with a strict Content Security Policy. Rate limits on sign-in, sign-up, voting and posting. 300 KB request limit. Avatars are re-encoded in the browser and accepted only as PNG, JPEG or WebP under 200 KB; SVG is refused.</td><td>A02, A07 Authentication</td></tr>
       <tr><td><strong>Ownership checks</strong></td><td>Edit and delete are allowed only for the asker, and context edits only before the first vote. Anonymous posts never expose the author ID in an API response.</td><td>A01 Access Control</td></tr>
       <tr><td><strong>Fail closed</strong></td><td>One error handler with consistent JSON errors and no stack traces in responses. Process-level handlers log and exit cleanly instead of carrying on in an unknown state.</td><td>A10 Exceptional Conditions</td></tr>
-      <tr><td><strong>Fast, correct feeds</strong></td><td>Vote counts are stored per option and updated in the same transaction as the vote. Feeds use cursor pagination. Rising, Fresh and Needs-votes are real queries.</td><td>Audit: feeds</td></tr>
-      <tr><td><strong>Migrations and tests</strong></td><td>Versioned migrations that keep existing data. Integration tests for auth, voting rules and ownership against a disposable MySQL. Dependency audit in CI.</td><td>A03 Supply Chain</td></tr>
+      <tr><td><strong>Fast, correct feeds</strong></td><td>Vote counts are stored per option and updated in the same transaction as the vote, under a row lock. Feeds are paginated. Rising, Fresh and Needs-votes are real queries.</td><td>Audit: feeds</td></tr>
+      <tr><td><strong>Migrations and tests</strong></td><td>SQL migrations in <code>supabase/migrations</code>, also runnable with <code>supabase db push</code>. 32 integration tests against a real Postgres. Row-level security on every table, so Supabase's public API can't read the data.</td><td>A03 Supply Chain</td></tr>
     </tbody>
   </table>
   <div class="folio"><span>This or That · Redesign case study</span><span>9</span></div>
