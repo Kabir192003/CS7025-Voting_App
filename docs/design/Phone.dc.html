@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>This or That — Mobile feed</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4A6B9C}a:hover{color:#2C4466}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid #14152B;outline-offset:-3px}
+.half{transition:flex-grow .55s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.half{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #14152B; font-family: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 10px">
+    <span style="font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 900; font-size: 24px; line-height: 1"><span style="color: #4A6B9C">THIS</span><span style="font-weight: 600">/</span><span style="color: #E0A800">THAT</span></span>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B5F7A">{{pos}} of {{count}}</span>
+  </div>
+
+  <div style="padding: 0 18px 14px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; gap: 8px; align-items: center; font-size: 12px; color: #5B5F7A">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #14152B; background: #EEF0F4; border-radius: 3px; padding: 3px 6px">{{topic}}</span>
+      <span>{{meta}}</span>
+    </div>
+    <h1 style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance">{{title}}</h1>
+    <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #3D4160">{{context}}</p>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; margin: 0 12px; border-radius: 8px; overflow: hidden; position: relative">
+    <button class="half" onClick="{{voteA}}" aria-label="{{aLabel}}" style="flex: {{aFlex}} 1 0; min-height: 96px; border: 0; background: #4A6B9C; color: #FFFFFF; text-align: left; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between">
+      <span style="display: flex; justify-content: space-between; width: 100%; align-items: center">
+        <span style="font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.1em; color: #EEF2F8">THIS</span>
+        <sc-if value="{{mineA}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 600; background: #FFFFFF; color: #4A6B9C; border-radius: 999px; padding: 3px 9px">Your pick</span></sc-if>
+      </span>
+      <span style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; gap: 12px">
+        <span style="font-size: 22px; font-weight: 700; line-height: 1.2">{{a}}</span>
+        <sc-if value="{{voted}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 900; font-size: 64px; line-height: 0.85">{{pa}}%</span></sc-if>
+      </span>
+    </button>
+    <button class="half" onClick="{{voteB}}" aria-label="{{bLabel}}" style="flex: {{bFlex}} 1 0; min-height: 96px; border: 0; background: #FFC21A; color: #14152B; text-align: left; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between">
+      <span style="display: flex; justify-content: space-between; width: 100%; align-items: center">
+        <span style="font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.1em; color: #6B5000">THAT</span>
+        <sc-if value="{{mineB}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 600; background: #14152B; color: #FFC21A; border-radius: 999px; padding: 3px 9px">Your pick</span></sc-if>
+      </span>
+      <span style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; gap: 12px">
+        <span style="font-size: 22px; font-weight: 700; line-height: 1.2">{{b}}</span>
+        <sc-if value="{{voted}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 900; font-size: 64px; line-height: 0.85">{{pb}}%</span></sc-if>
+      </span>
+    </button>
+    <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+      <span style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #FFFFFF; color: #14152B; font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 900; font-size: 18px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none">OR</span>
+    </sc-if>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; min-height: 52px; box-sizing: border-box">
+    <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B5F7A">{{n}} votes · tap a side to see the split</span>
+    </sc-if>
+    <sc-if value="{{voted}}" hint-placeholder-val="{{ false }}">
+      <span style="{{verdictStyle}}">{{verdict}}</span>
+      <button onClick="{{next}}" style="background: #14152B; color: #FFFFFF; border: 0; border-radius: 4px; padding: 12px 16px; font-weight: 700; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center; gap: 8px">Next
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </button>
+    </sc-if>
+  </div>
+
+  <nav aria-label="Primary" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #DADCE6; padding: 6px 4px 14px; background: #FFFFFF">
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; min-height: 44px; text-decoration: none; color: #14152B; font-size: 11px; font-weight: 700">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14152B" stroke-width="2.2" stroke-linejoin="round"><rect x="4" y="3" width="16" height="8" rx="1"></rect><rect x="4" y="13" width="16" height="8" rx="1"></rect></svg>Decide</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; min-height: 44px; text-decoration: none; color: #5B5F7A; font-size: 11px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B5F7A" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>Explore</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; min-height: 44px; text-decoration: none; color: #4A6B9C; font-size: 11px; font-weight: 600">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4A6B9C" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Ask</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; min-height: 44px; text-decoration: none; color: #5B5F7A; font-size: 11px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B5F7A" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Record</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 0, vote: null };
+  }
+  renderVals() {
+    var self = this;
+    var deck = [
+      { topic: 'Entertainment', meta: 'Anonymous · 2h · closes in 3d', title: 'Read the book first, or watch the series first?', context: 'It’s Normal People. I have a week off and somehow avoided both.', a: 'Book first', b: 'Series first', va: 603, vb: 601 },
+      { topic: 'Everyday', meta: 'Anonymous · 20m · closes in 6d', title: 'Luas or cycle to campus through a Dublin winter?', context: '25 minutes on the bike, 35 door to door on the Luas.', a: 'Luas', b: 'Cycle', va: 5, vb: 3 },
+      { topic: 'Money', meta: 'cian.o · 9h · closes in 1d', title: 'Clear the €4k loan first, or invest €200 a month now?', context: 'Loan is at 7.5%. Three months of rent saved.', a: 'Clear the loan', b: 'Start investing', va: 233, vb: 61 }
+    ];
+    var p = deck[this.state.i % deck.length];
+    var mine = this.state.vote;
+    var va = p.va + (mine === 'a' ? 1 : 0), vb = p.vb + (mine === 'b' ? 1 : 0), n = va + vb;
+    var pa = Math.round(va / n * 100), pb = 100 - pa;
+    var v;
+    if (n < 10) v = ['Too early to call', '#EEF0F4', '#3D4160'];
+    else if (Math.abs(pa - pb) <= 6) v = ['Too close to call', '#14152B', '#FFFFFF'];
+    else if (Math.max(pa, pb) >= 70) v = ['Landslide · ' + (pa > pb ? 'THIS' : 'THAT'), pa > pb ? '#4A6B9C' : '#FFC21A', pa > pb ? '#FFFFFF' : '#14152B'];
+    else v = ['Leaning ' + (pa > pb ? 'THIS' : 'THAT'), pa > pb ? '#E6ECF4' : '#FFF3CC', pa > pb ? '#2C4466' : '#5A4300'];
+    return {
+      pos: (this.state.i % deck.length) + 1, count: 12,
+      topic: p.topic, meta: p.meta, title: p.title, context: p.context, a: p.a, b: p.b,
+      aLabel: 'Vote ' + p.a, bLabel: 'Vote ' + p.b,
+      open: !mine, voted: !!mine, mineA: mine === 'a', mineB: mine === 'b',
+      aFlex: mine ? pa : 50, bFlex: mine ? pb : 50, pa: pa, pb: pb,
+      n: n.toLocaleString('en-IE'),
+      verdict: v[0] + ' · n = ' + n.toLocaleString('en-IE'),
+      verdictStyle: 'font-family: "Big Shoulders Display", Impact, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 10px; border-radius: 3px; background: ' + v[1] + '; color: ' + v[2],
+      voteA: function () { if (!self.state.vote) self.setState({ vote: 'a' }); },
+      voteB: function () { if (!self.state.vote) self.setState({ vote: 'b' }); },
+      next: function () { self.setState({ i: self.state.i + 1, vote: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

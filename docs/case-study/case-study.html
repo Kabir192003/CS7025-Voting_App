@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>This or That — Redesign Case Study</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Layout: A4 editorial pages, one idea per spread, results-desk vernacular */
+  :root {
+    --this: #4A6B9C; --this-dark: #2C4466; --this-tint: #E6ECF4;
+    --that: #FFC21A; --that-dark: #765800; --that-tint: #FFF3CC;
+    --ink: #14152B; --slate: #3D4160; --muted: #5B5F7A; --rule: #DADCE6; --paper: #EEF0F4;
+    --display: 'Big Shoulders Display', Impact, 'Arial Narrow', sans-serif;
+    --body: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #FFFFFF; color: var(--ink); font-family: var(--body); font-size: 9.6pt; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 210mm; min-height: 297mm; padding: 15mm 17mm 18mm; position: relative; page-break-after: always; break-after: page; display: flex; flex-direction: column; gap: 4.5mm; height: 297mm; overflow: hidden; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .folio { position: absolute; bottom: 9mm; left: 18mm; right: 18mm; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 7.5pt; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 2.5mm; }
+  .eyebrow { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  h2 { font-family: var(--display); font-weight: 800; font-size: 30pt; line-height: 0.95; }
+  h3 { font-size: 12pt; font-weight: 700; line-height: 1.3; }
+  p { margin: 0; max-width: 68ch; }
+  .lead { font-size: 11pt; line-height: 1.5; color: var(--slate); }
+  .muted { color: var(--muted); }
+  .mono { font-family: var(--mono); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+  .stack { display: flex; flex-direction: column; gap: 2.5mm; }
+  .box { border: 1px solid var(--rule); border-radius: 2mm; padding: 3.8mm; display: flex; flex-direction: column; gap: 2mm; }
+  .fill { background: var(--paper); border-color: var(--paper); }
+  .dark { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
+  .dark .muted { color: #B9BDD6; }
+  .finding { display: grid; grid-template-columns: 22mm 1fr; gap: 4mm; padding: 2.2mm 0; border-bottom: 1px solid var(--rule); }
+  .finding:last-child { border-bottom: 0; }
+  .sev { font-family: var(--display); font-weight: 800; font-size: 10pt; letter-spacing: 0.06em; padding: 1mm 2mm; border-radius: 1mm; align-self: start; text-align: center; }
+  .sev-crit { background: var(--ink); color: #FFFFFF; }
+  .sev-high { background: var(--that); color: var(--ink); }
+  .sev-med { background: var(--this-tint); color: var(--this-dark); }
+  .study { display: grid; grid-template-columns: 1.35fr 1fr; gap: 6mm; padding: 3.5mm 0; border-top: 1px solid var(--rule); }
+  .study .src { font-family: var(--mono); font-size: 8pt; color: var(--muted); }
+  .arrow { font-family: var(--display); font-weight: 800; font-size: 10pt; letter-spacing: 0.08em; color: var(--this); }
+  .stat { font-family: var(--display); font-weight: 900; font-size: 40pt; line-height: 0.85; }
+  .split { display: flex; height: 11mm; border-radius: 1.5mm; overflow: hidden; position: relative; }
+  .split .a { background: var(--this); color: #FFFFFF; display: flex; align-items: center; padding: 0 3mm; font-family: var(--display); font-weight: 900; font-size: 17pt; }
+  .split .b { background: var(--that); color: var(--ink); display: flex; align-items: center; justify-content: flex-end; padding: 0 3mm; font-family: var(--display); font-weight: 900; font-size: 17pt; }
+  .split .mid { position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1.5px dashed rgba(20,21,43,0.5); }
+  .verdict { font-family: var(--display); font-weight: 800; font-size: 9.5pt; letter-spacing: 0.06em; text-transform: uppercase; padding: 1mm 2.2mm; border-radius: 1mm; display: inline-block; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.9pt; }
+  th { text-align: left; font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 2mm 2mm 2mm 0; border-bottom: 1px solid var(--ink); }
+  td { padding: 1.7mm 2mm 1.7mm 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td.q { width: 52%; }
+  .chip { font-family: var(--mono); font-size: 7.5pt; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: var(--paper); border-radius: 1mm; padding: 0.6mm 1.6mm; white-space: nowrap; }
+  ol.src-list { margin: 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.5; display: flex; flex-direction: column; gap: 1.6mm; }
+  ol.src-list a { color: var(--this-dark); word-break: break-all; }
+  ul { margin: 0; padding-left: 4.5mm; display: flex; flex-direction: column; gap: 1.4mm; }
+  code { font-family: var(--mono); font-size: 8.6pt; background: var(--paper); padding: 0.3mm 1mm; border-radius: 0.8mm; }
+  .swatch { height: 18mm; border-radius: 1.5mm; display: flex; align-items: flex-end; padding: 2mm; font-family: var(--display); font-weight: 900; font-size: 14pt; }
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="page" style="background: var(--ink); color: #FFFFFF; justify-content: space-between; padding-bottom: 20mm">
+  <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 8pt; color: #B9BDD6">
+    <span>CASE STUDY · PRODUCT &amp; UX REDESIGN</span><span>NOVEMBER 2026</span>
+  </div>
+  <div class="stack" style="gap: 7mm">
+    <div style="font-family: var(--display); font-weight: 900; font-size: 92pt; line-height: 0.82">
+      <span style="color: #8FA9CF">THIS</span><span style="font-weight: 600">/</span><span style="color: var(--that)">THAT</span>
+    </div>
+    <p style="font-size: 17pt; line-height: 1.35; max-width: 30ch; color: #FFFFFF">Redesigning a community poll app around one finding: people vote differently once they can see the crowd.</p>
+    <div class="split" style="height: 16mm; max-width: 150mm">
+      <div class="a" style="flex: 52 1 0; background: #8FA9CF; color: var(--ink); font-size: 24pt">52%</div>
+      <div class="b" style="flex: 48 1 0; font-size: 24pt">48%</div>
+      <div class="mid" style="border-color: rgba(20,21,43,0.6)"></div>
+    </div>
+    <span class="verdict" style="background: #FFFFFF; color: var(--ink); align-self: flex-start">Too close to call · n = 1,204</span>
+  </div>
+  <div class="grid3" style="color: #D6D9EA; font-size: 9pt; border-top: 1px solid #3D4160; padding-top: 5mm">
+    <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">ROLE</div>Research, product design, full-stack engineering</div>
+    <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">CONTEXT</div>CS7025, Trinity College Dublin. Node.js, Express, MySQL</div>
+    <div><div class="mono" style="color: #B9BDD6; font-size: 7.5pt">AUTHOR</div>Kabir</div>
+  </div>
+</section>
+
+<!-- 2. SUMMARY -->
+<section class="page">
+  <p class="eyebrow">01 · Summary</p>
+  <h2>From a working prototype to a product with a point of view</h2>
+  <p class="lead">This or That lets people post a decision they are stuck on and have the community vote. The first version worked, but it looked generic, showed placeholder content, and had security problems serious enough to block a public launch. This study covers the audit, the research behind each design decision, the new visual system and the plan for the backend.</p>
+
+  <div class="grid3" style="margin-top: 3mm">
+    <div class="box fill"><span class="stat">9</span><span>problem areas found in the audit, 4 of them critical</span></div>
+    <div class="box fill"><span class="stat" style="color: var(--this)">6</span><span>peer-reviewed or primary sources shaped the design</span></div>
+    <div class="box fill"><span class="stat" style="color: var(--that-dark)">7</span><span>screens designed, desktop and mobile</span></div>
+  </div>
+
+  <div class="grid2" style="margin-top: 2mm">
+    <div class="stack">
+      <h3>The three decisions that define the redesign</h3>
+      <ul>
+        <li><strong>Vote, then reveal.</strong> Results stay hidden until you vote. Three experiments show that visible tallies pull later votes toward the leader.</li>
+        <li><strong>Strictly two sides.</strong> One question, two options, shown as a single split bar with a 50% line. Every result reads at a glance.</li>
+        <li><strong>A results-desk vocabulary.</strong> Polls are called like elections: too early, too close, leaning, landslide. Each label maps to a rule on the server.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <h3>What changed for users</h3>
+      <ul>
+        <li>Voting is one tap with no page reload, and the split animates in.</li>
+        <li>Arguments are grouped by side, so you read the strongest case for each option.</li>
+        <li>Askers report what they chose in the end, which closes the loop for voters.</li>
+        <li>A profile shows your record: how often you side with the crowd, by topic.</li>
+        <li>A live check helps people write better questions before posting.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>2</span></div>
+</section>
+
+<!-- 3. AUDIT -->
+<section class="page">
+  <p class="eyebrow">02 · Audit of the existing app</p>
+  <h2>What was there</h2>
+  <p class="lead">I read every file in the codebase: 6 controllers, 6 route files, 7 pages, a 2,223-line stylesheet, the schema and the seed scripts. The backend structure was sound. The problems were in configuration, data integrity and the front end.</p>
+
+  <div class="stack" style="gap: 0; margin-top: 2mm">
+    <div class="finding"><span class="sev sev-crit">CRITICAL</span><div><strong>Production database password committed to the repo.</strong> It was base64-encoded as a fallback in <code>config/db.js</code>, beside a hard-coded JWT secret. Anyone with the repo could read the database or forge a login. <span class="muted">OWASP A02 Security Misconfiguration.</span></div></div>
+    <div class="finding"><span class="sev sev-crit">CRITICAL</span><div><strong>Stored cross-site scripting.</strong> Usernames and avatar data reached <code>innerHTML</code> and an <code>&lt;img src&gt;</code> attribute without escaping. <span class="muted">OWASP A05 Injection.</span></div></div>
+    <div class="finding"><span class="sev sev-crit">CRITICAL</span><div><strong>Schema out of sync with the code.</strong> <code>schema.sql</code> lacked seven columns the code reads, including email and display name, so a fresh install failed at sign-up.</div></div>
+    <div class="finding"><span class="sev sev-crit">CRITICAL</span><div><strong>Topics that silently did nothing.</strong> The interface offered 16 topics, but the database held 6 differently named ones. Most picks were dropped without an error, so personalisation rarely worked.</div></div>
+    <div class="finding"><span class="sev sev-high">HIGH</span><div><strong>Votes and comments shared one row.</strong> A unique key on (question, user) meant each person could leave only one comment, and a new one overwrote the old. Votes also weren't checked against the question, so an option from another poll was accepted. <span class="muted">OWASP A01 Broken Access Control.</span></div></div>
+    <div class="finding"><span class="sev sev-high">HIGH</span><div><strong>Fake content in the live UI.</strong> The hero (“1,240 active votes”), leaderboard, trending topics and profile defaults (“Kelly”, ID TT-2025-00421) were all hard-coded.</div></div>
+    <div class="finding"><span class="sev sev-high">HIGH</span><div><strong>Feeds that didn't do what they said.</strong> “New” called the same endpoint as “For you”. “Trending” sorted by all-time totals. “Unanswered” sorted by fewest votes, so answered polls still appeared.</div></div>
+    <div class="finding"><span class="sev sev-med">MEDIUM</span><div><strong>No hardening.</strong> No rate limiting on login, no security headers (although the README said there were), a 10 MB request limit, and a full page reload after every vote.</div></div>
+    <div class="finding"><span class="sev sev-med">MEDIUM</span><div><strong>Dead controls.</strong> Save buttons, the question “type” field and the comments-off setting were stored or drawn but never acted on.</div></div>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>3</span></div>
+</section>
+
+<!-- 4. RESEARCH: SOCIAL INFLUENCE -->
+<section class="page">
+  <p class="eyebrow">03 · Research · how crowds behave</p>
+  <h2>Showing the score changes the score</h2>
+  <p class="lead">The old app showed live percentages before you voted. The research on social influence says that design is the main threat to a poll's usefulness, since a poll is only worth anything if the votes are independent.</p>
+
+  <div class="study">
+    <div class="stack">
+      <p class="src">SALGANIK, DODDS &amp; WATTS · SCIENCE · 2006</p>
+      <h3>MusicLab: social influence makes outcomes unequal and unpredictable</h3>
+      <p>Participants were randomly assigned either to an independent condition or to one of eight “worlds” where they could see download counts. In the social worlds, success was more unequal (higher Gini coefficient) and harder to predict. The best songs rarely did badly and the worst rarely did well, but almost anything else could happen.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ DESIGN DECISION</span>
+      <p>Hide the tally until the person has voted. Each vote then reflects the voter's own view, not the counter's.</p>
+    </div>
+  </div>
+
+  <div class="study">
+    <div class="stack">
+      <p class="src">MUCHNIK, ARAL &amp; TAYLOR · SCIENCE · 2013</p>
+      <h3>One early upvote measurably inflates the final score</h3>
+      <p>In a five-month randomised experiment on a Reddit-like news site, one artificial upvote raised the chance of the next rating being positive by about 32%, and final ratings ended about 25% higher on average. The effect was asymmetric: people corrected negative manipulation but piled onto positive.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ DESIGN DECISION</span>
+      <p>The feed doesn't rank by raw vote count. It shows no counts before you vote, only the number of votes so far, never who is ahead.</p>
+    </div>
+  </div>
+
+  <div class="study">
+    <div class="stack">
+      <p class="src">LORENZ, RAUHUT, SCHWEITZER &amp; HELBING · PNAS · 2011</p>
+      <h3>Seeing others' answers narrows a crowd without making it more accurate</h3>
+      <p>144 participants made factual estimates, with money at stake for accuracy, and could revise them after seeing others' answers. Information sharing reduced the diversity of answers without improving the group average, while making people more confident.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ DESIGN DECISION</span>
+      <p>Arguments are hidden until you vote too, and they're grouped by side, so a reader meets the best case for each option instead of a pile-on.</p>
+    </div>
+  </div>
+
+  <div class="box fill" style="margin-top: 1mm">
+    <p><strong>Trade-off.</strong> Hiding results makes browsing less satisfying for someone who only wants to see outcomes. The poll page will offer “Skip and see results”, which records a non-vote, so lurkers are still served and the independence of the data is kept.</p>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>4</span></div>
+</section>
+
+<!-- 5. RESEARCH: CHOICE + RANKING -->
+<section class="page">
+  <p class="eyebrow">04 · Research · choice and ranking</p>
+  <h2>Why two options, and how to rank them</h2>
+
+  <div class="study" style="border-top: 0; padding-top: 0">
+    <div class="stack">
+      <p class="src">SCHEIBEHENNE, GREIFENEDER &amp; TODD · J. CONSUMER RESEARCH · 2010</p>
+      <h3>Choice overload is weaker than its reputation</h3>
+      <p>A meta-analysis of 63 conditions from 50 experiments (5,036 participants) found a mean choice-overload effect of virtually zero, with large variation between studies. More options tended to help when people already had clear preferences.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ WHAT I DIDN'T CLAIM</span>
+      <p>“Fewer choices are always better” isn't supported by the evidence, so it isn't the reason for a binary format. The reason is legibility: with two options, one bar, one margin and one verdict say everything.</p>
+    </div>
+  </div>
+
+  <div class="study">
+    <div class="stack">
+      <p class="src">HACKER NEWS RANKING · news.arc, ANALYSED BY K. SHIRRIFF</p>
+      <h3>Time decay keeps a feed fresh</h3>
+      <p>The commonly cited form is <code>score = (votes − 1) / (hours + 2)<sup>1.8</sup></code>. The exponent, called gravity, controls how fast older items sink. The live site also applies penalty factors, for example to posts with many comments relative to votes.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ DESIGN DECISION</span>
+      <p>“Rising” uses votes and arguments from the last 48 hours, divided by <code>(age + 2)<sup>1.5</sup></code>. Polls that are close get a small boost, since a near-even split is the most useful one to add a vote to.</p>
+    </div>
+  </div>
+
+  <div class="study">
+    <div class="stack">
+      <p class="src">E. MILLER · “HOW NOT TO SORT BY AVERAGE RATING” · 2009</p>
+      <h3>Small samples lie</h3>
+      <p>Sorting by a raw percentage ranks 2 out of 2 above 100 out of 101. Miller recommends the lower bound of the Wilson score confidence interval, which takes sample size into account.</p>
+    </div>
+    <div class="stack" style="justify-content: center">
+      <span class="arrow">→ DESIGN DECISION</span>
+      <p>Below 10 votes a poll is labelled “Too early to call” and gets no “leaning” label. Argument ranking uses the Wilson lower bound of the share of readers who marked it convincing.</p>
+    </div>
+  </div>
+
+  <div class="stack" style="margin-top: 1mm">
+    <h3>The verdict scale</h3>
+    <div class="grid2" style="gap: 3mm 7mm; align-items: center">
+      <div style="display: flex; gap: 3mm; align-items: center"><span class="verdict" style="background: var(--paper); color: var(--slate)">Too early to call</span><span class="muted">n &lt; 10</span></div>
+      <div style="display: flex; gap: 3mm; align-items: center"><span class="verdict" style="background: var(--ink); color: #FFFFFF">Too close to call</span><span class="muted">margin ≤ 6 pts</span></div>
+      <div style="display: flex; gap: 3mm; align-items: center"><span class="verdict" style="background: var(--this-tint); color: var(--this-dark)">Leaning This</span><span class="muted">leader below 70%</span></div>
+      <div style="display: flex; gap: 3mm; align-items: center"><span class="verdict" style="background: var(--that); color: var(--ink)">Landslide · That</span><span class="muted">leader at 70% or more</span></div>
+    </div>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>5</span></div>
+</section>
+
+<!-- 6. MARKET + VISUAL RESEARCH -->
+<section class="page">
+  <p class="eyebrow">05 · Research · market and visual landscape</p>
+  <h2>What exists, and what to avoid looking like</h2>
+
+  <div class="grid2">
+    <div class="box">
+      <p class="eyebrow">Precedent · Gas (2022)</p>
+      <h3>Curated polls can spread fast, but at a cost</h3>
+      <p>Gas reached #1 on the US App Store within about three months of launch, and Discord acquired it in January 2023. Its polls were written by the company, not by users, and growth relied on referrals that schools found intrusive. Much of the usage data is the founder's own.</p>
+      <p class="muted">Lesson: well-written prompts drive engagement. The redesign seeds every topic with carefully written questions but keeps user-written ones as the core.</p>
+    </div>
+    <div class="box">
+      <p class="eyebrow">Precedent · Instagram poll stickers</p>
+      <h3>One tap is the lowest-effort form of participation</h3>
+      <p>Instagram has reported that about 60% of businesses posting Stories add an interactive element such as a poll each month. Published “engagement rate” benchmarks for polls mostly come from marketing blogs without sources, so I didn't rely on them.</p>
+      <p class="muted">Lesson: voting must take one tap and give instant feedback. Commenting stays optional and comes after the vote.</p>
+    </div>
+  </div>
+
+  <div class="box dark" style="margin-top: 1mm">
+    <p class="eyebrow" style="color: var(--that)">Visual research · the “AI-made” look</p>
+    <h3 style="color: #FFFFFF">The design defaults that make an app look generated</h3>
+    <p style="color: #D6D9EA">Design commentary in 2025–26 describes a cluster of tells: a purple or indigo gradient hero, the Inter typeface as the safe pick, a centred hero followed by three identical rounded cards with icons, and gradients used as background decoration. Several writers trace the purple to Tailwind's default palette, which dominated the tutorials models learned from.</p>
+    <div class="grid3" style="margin-top: 2mm; color: #D6D9EA; font-size: 9.5pt">
+      <div><strong style="color: #FFFFFF">Instead of a gradient</strong><br>Two flat inks with fixed meanings: denim always means THIS, marigold always means THAT.</div>
+      <div><strong style="color: #FFFFFF">Instead of Inter</strong><br>A condensed scoreboard face for numbers, a newsroom grotesk for text, a mono for counts.</div>
+      <div><strong style="color: #FFFFFF">Instead of feature cards</strong><br>The product opens on the real feed, with a poll you can vote on in the first screen.</div>
+    </div>
+  </div>
+
+  <div class="stack" style="margin-top: 1mm">
+    <h3>Design principles from the research</h3>
+    <div class="grid2" style="gap: 3mm 7mm">
+      <p><strong>1. Independence first.</strong> Nothing on screen tells you how others voted until you've voted.</p>
+      <p><strong>2. Honest numbers.</strong> Always show n. Never call a result on a small sample.</p>
+      <p><strong>3. One tap to take part.</strong> Voting never needs a page load, a confirmation or an account prompt mid-flow.</p>
+      <p><strong>4. Close the loop.</strong> Askers report their final choice, so voters learn whether their advice was taken.</p>
+    </div>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>6</span></div>
+</section>
+
+<!-- 7. SYSTEM -->
+<section class="page">
+  <p class="eyebrow">06 · Visual system</p>
+  <h2>Two Inks</h2>
+  <p class="lead">Every decision has two sides, so the interface has two inks. Denim and marigold are used only to mean THIS and THAT. Everything else is ink on a cool paper grey, so the split is always the loudest thing on the screen.</p>
+
+  <div class="grid3" style="grid-template-columns: repeat(6, 1fr); gap: 3mm">
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #4A6B9C; color: #FFFFFF">THIS</div><strong>Denim</strong><span class="mono" style="font-size: 7.5pt">#4A6B9C · 5.4:1</span></div>
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #FFC21A; color: #14152B">THAT</div><strong>Marigold</strong><span class="mono" style="font-size: 7.5pt">#FFC21A · 11.1:1 ink</span></div>
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #14152B; color: #FFFFFF">Aa</div><strong>Ink</strong><span class="mono" style="font-size: 7.5pt">#14152B</span></div>
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #3D4160; color: #FFFFFF">Aa</div><strong>Slate</strong><span class="mono" style="font-size: 7.5pt">#3D4160 · 9.9:1</span></div>
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #EEF0F4; color: #14152B; border: 1px solid var(--rule)">Aa</div><strong>Paper</strong><span class="mono" style="font-size: 7.5pt">#EEF0F4</span></div>
+    <div class="stack" style="gap: 1.5mm"><div class="swatch" style="background: #DADCE6; color: #14152B">Aa</div><strong>Rule</strong><span class="mono" style="font-size: 7.5pt">#DADCE6</span></div>
+  </div>
+  <p class="muted" style="font-size: 9pt">Contrast ratios are WCAG 2.x, measured against white unless noted. The first draft used a saturated cobalt. Review feedback found it too heavy, so it was replaced with a calmer denim that still passes AA for body text.</p>
+
+  <div class="stack" style="gap: 0; margin-top: 1mm">
+    <div style="display: grid; grid-template-columns: 62mm 1fr; gap: 6mm; align-items: baseline; border-top: 1px solid var(--rule); padding: 3mm 0">
+      <span style="font-family: var(--display); font-weight: 900; font-size: 46pt; line-height: 0.85">79%</span>
+      <p><strong>Big Shoulders Display.</strong> A condensed face with scoreboard roots, used for percentages, verdicts and headings, never for sentences.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: 62mm 1fr; gap: 6mm; align-items: baseline; border-top: 1px solid var(--rule); padding: 3mm 0">
+      <span style="font-size: 14pt; font-weight: 600; line-height: 1.2">Lisbon or Porto for a first long weekend?</span>
+      <p><strong>Schibsted Grotesk.</strong> Designed for a news publisher, with sturdy figures. Used for questions, body copy and controls.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: 62mm 1fr; gap: 6mm; align-items: baseline; border-top: 1px solid var(--rule); padding: 3mm 0">
+      <span class="mono" style="font-size: 10pt">n = 295 · margin 58 pts</span>
+      <p><strong>IBM Plex Mono.</strong> Used for counts, timestamps and anything a reader might compare down a column.</p>
+    </div>
+  </div>
+
+  <div class="stack" style="margin-top: 1mm">
+    <h3>The signature component: the split</h3>
+    <div class="split" style="max-width: 120mm"><div class="a" style="flex: 64 1 0">64%</div><div class="b" style="flex: 36 1 0">36%</div><div class="mid"></div></div>
+    <p class="muted" style="font-size: 9pt">One bar, two inks, and a dashed line at 50%, borrowed from election-night graphics. Before you vote, it appears as two tappable halves with an “OR” between them. After you vote, the boundary slides to the result.</p>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>7</span></div>
+</section>
+
+<!-- 8. SCREENS + FEATURES -->
+<section class="page">
+  <p class="eyebrow">07 · Screens and features</p>
+  <h2>Seven screens, one flow</h2>
+
+  <table>
+    <thead><tr><th style="width: 24%">Screen</th><th>What it does</th><th style="width: 30%">Grounded in</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Feed</strong></td><td>Lenses (For you, Rising, Fresh, Needs votes, Saved). Cards show two tappable options and only the vote count. After you vote, the split, verdict, n and whether you sided with the majority. Undo, save and copy link.</td><td>Vote-then-reveal (Salganik; Muchnik); time decay (HN)</td></tr>
+      <tr><td><strong>Poll detail</strong></td><td>A results desk with large percentages, a verdict and margin, and a chart of how the split moved over time. Arguments are split into “For THIS” and “For THAT” columns and sorted by how convincing readers found them.</td><td>Lorenz et al.; Wilson lower bound (Miller)</td></tr>
+      <tr><td><strong>Ask</strong></td><td>Composer with a live preview card and a question check: is it a question, are the options distinct, do they fit on a button, is there context. Topic, closing time, anonymity, arguments on or off, hidden results.</td><td>Quality of prompts (Gas precedent)</td></tr>
+      <tr><td><strong>Profile</strong></td><td>Your decision record: votes cast, polls asked, the share of your votes that sided with the majority by topic, and polls waiting for you to report an outcome.</td><td>Closing the loop</td></tr>
+      <tr><td><strong>Mobile feed</strong></td><td>One decision per screen. The screen is split into two tap targets. After a tap, the halves resize to the result and “Next” appears.</td><td>One-tap participation</td></tr>
+      <tr><td><strong>Onboarding</strong></td><td>Pick three or more topics. Each tile shows an example question, so the choice is concrete.</td><td>Fixes the topic mismatch in the audit</td></tr>
+      <tr><td><strong>System sheet</strong></td><td>Tokens, type, verdict scale, components and dark-mode values.</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2" style="margin-top: 2mm">
+    <div class="box fill">
+      <h3>New features</h3>
+      <ul>
+        <li>Outcome reports from askers, with notifications to voters</li>
+        <li>Arguments grouped by side, with “convincing” marks</li>
+        <li>Closing times and automatic closing</li>
+        <li>Save, search and topic filters</li>
+        <li>Crowd-alignment stats by topic</li>
+        <li>Edit context before the first vote; delete your own poll</li>
+        <li>Report a poll or argument; asker can turn arguments off</li>
+      </ul>
+    </div>
+    <div class="box fill">
+      <h3>Accessibility as drawn</h3>
+      <ul>
+        <li>Real buttons, links and labelled inputs throughout</li>
+        <li>Touch targets of at least 44 px</li>
+        <li>THIS and THAT differ in lightness as well as hue, so they stay distinct for colour-blind users and in greyscale</li>
+        <li>Visible focus states; motion respects reduced-motion settings</li>
+        <li>Every percentage is printed as text, never only as bar length</li>
+      </ul>
+    </div>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>8</span></div>
+</section>
+
+<!-- 9. BACKEND -->
+<section class="page">
+  <p class="eyebrow">08 · Backend plan</p>
+  <h2>Hardening the engine</h2>
+  <p class="lead">The redesign needs a backend that enforces its rules. Each change below answers an audit finding or a category in the OWASP Top 10 (2025). This section is the implementation plan; the build follows sign-off on the design.</p>
+
+  <table>
+    <thead><tr><th style="width: 30%">Change</th><th>Detail</th><th style="width: 22%">Answers</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Secrets out of code</strong></td><td>All credentials come from environment variables. The server refuses to start without them. Ship <code>.env.example</code>. Rotate the leaked database password.</td><td>A02 Misconfiguration</td></tr>
+      <tr><td><strong>Separate votes from arguments</strong></td><td><code>votes</code> (one per user per poll, enforced by a key) and <code>arguments</code> (many per user, each tagged with a side). A vote is only accepted if the option belongs to the poll and the poll is open.</td><td>A01 Access Control</td></tr>
+      <tr><td><strong>Validation at the edge</strong></td><td>Every request body is checked against a schema (types, lengths, enums). Text is stored raw and escaped on output; the front end renders with <code>textContent</code>.</td><td>A05 Injection</td></tr>
+      <tr><td><strong>Headers and limits</strong></td><td>Helmet with a strict Content Security Policy. Rate limits on sign-in, sign-up, voting and posting. 100 KB request limit. Avatars uploaded as files and type-checked.</td><td>A02, A07 Authentication</td></tr>
+      <tr><td><strong>Ownership checks</strong></td><td>Edit and delete are allowed only for the asker, and context edits only before the first vote. Anonymous posts never expose the author ID in an API response.</td><td>A01 Access Control</td></tr>
+      <tr><td><strong>Fail closed</strong></td><td>One error handler with consistent JSON errors and no stack traces in responses. Process-level handlers log and exit cleanly instead of carrying on in an unknown state.</td><td>A10 Exceptional Conditions</td></tr>
+      <tr><td><strong>Fast, correct feeds</strong></td><td>Vote counts are stored per option and updated in the same transaction as the vote. Feeds use cursor pagination. Rising, Fresh and Needs-votes are real queries.</td><td>Audit: feeds</td></tr>
+      <tr><td><strong>Migrations and tests</strong></td><td>Versioned migrations that keep existing data. Integration tests for auth, voting rules and ownership against a disposable MySQL. Dependency audit in CI.</td><td>A03 Supply Chain</td></tr>
+    </tbody>
+  </table>
+  <div class="folio"><span>This or That · Redesign case study</span><span>9</span></div>
+</section>
+
+<!-- 10. CONTENT -->
+<section class="page">
+  <p class="eyebrow">09 · Content</p>
+  <h2>A question set people recognise</h2>
+  <p class="lead">The old seed data used six generic categories that didn't match the interface. The new set has twelve topics, each seeded with questions that are specific, local to the Dublin student audience and genuinely two-sided.</p>
+
+  <table>
+    <thead><tr><th style="width: 17%">Topic</th><th class="q">Example question</th><th>THIS</th><th>THAT</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip">Tech</span></td><td class="q">MacBook Air or ThinkPad X1 Carbon for a design + dev master's?</td><td>MacBook Air</td><td>ThinkPad</td></tr>
+      <tr><td><span class="chip">Money</span></td><td class="q">Clear a €4k credit union loan first, or start investing €200 a month?</td><td>Clear the loan</td><td>Start investing</td></tr>
+      <tr><td><span class="chip">Career</span></td><td class="q">Fully remote startup, or a hybrid big-firm role paying €6k more?</td><td>Remote startup</td><td>Hybrid big firm</td></tr>
+      <tr><td><span class="chip">Study</span></td><td class="q">Berkeley Library or the Hamilton for exam season?</td><td>Berkeley</td><td>Hamilton</td></tr>
+      <tr><td><span class="chip">Travel</span></td><td class="q">Lisbon or Porto for a first long weekend in Portugal?</td><td>Lisbon</td><td>Porto</td></tr>
+      <tr><td><span class="chip">Food &amp; Drink</span></td><td class="q">Meal-prep on Sunday, or cook fresh every night?</td><td>Meal-prep</td><td>Cook fresh</td></tr>
+      <tr><td><span class="chip">Home</span></td><td class="q">Rent alone in Rathmines, or share in Phibsborough and save €450?</td><td>Live alone</td><td>House-share</td></tr>
+      <tr><td><span class="chip">Health</span></td><td class="q">Gym at 7am or 7pm when you're new to it?</td><td>7am</td><td>7pm</td></tr>
+      <tr><td><span class="chip">Style</span></td><td class="q">One good wool coat, or two cheaper jackets for a Dublin winter?</td><td>One good coat</td><td>Two jackets</td></tr>
+      <tr><td><span class="chip">Relationships</span></td><td class="q">Tell a friend you can't afford the group holiday, or quietly find the money?</td><td>Tell them</td><td>Find the money</td></tr>
+      <tr><td><span class="chip">Entertainment</span></td><td class="q">Read Normal People first, or watch the series first?</td><td>Book first</td><td>Series first</td></tr>
+      <tr><td><span class="chip">Everyday</span></td><td class="q">Luas or cycle to campus through a Dublin winter?</td><td>Luas</td><td>Cycle</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size: 9pt">Writing rules for seed questions: name the real trade-off, include one concrete constraint (budget, time, place), keep each option under 28 characters, and avoid questions with an obvious right answer.</p>
+  <div class="folio"><span>This or That · Redesign case study</span><span>10</span></div>
+</section>
+
+<!-- 11. SOURCES -->
+<section class="page">
+  <p class="eyebrow">10 · Sources</p>
+  <h2>References</h2>
+  <ol class="src-list">
+    <li>Salganik, M. J., Dodds, P. S., &amp; Watts, D. J. (2006). Experimental study of inequality and unpredictability in an artificial cultural market. <em>Science</em>, 311(5762), 854–856. <a href="https://www.cs.toronto.edu/~bor/303s19/docs/salganik_dodds_watts.pdf">cs.toronto.edu/~bor/303s19/docs/salganik_dodds_watts.pdf</a></li>
+    <li>Muchnik, L., Aral, S., &amp; Taylor, S. J. (2013). Social influence bias: A randomized experiment. <em>Science</em>, 341(6146), 647–651. <a href="https://pubmed.ncbi.nlm.nih.gov/23929980/">pubmed.ncbi.nlm.nih.gov/23929980</a>. Summary: <a href="https://news.mit.edu/2013/how-online-ratings-affect-your-judgment-0808">news.mit.edu/2013/how-online-ratings-affect-your-judgment-0808</a></li>
+    <li>Lorenz, J., Rauhut, H., Schweitzer, F., &amp; Helbing, D. (2011). How social influence can undermine the wisdom of crowd effect. <em>PNAS</em>, 108(22), 9020–9025. <a href="https://sg-dev.github.io/legacy-website/media/publication_files/PNAS-2011-Lorenz-9020-5.pdf">sg-dev.github.io/…/PNAS-2011-Lorenz-9020-5.pdf</a></li>
+    <li>Scheibehenne, B., Greifeneder, R., &amp; Todd, P. M. (2010). Can there ever be too many options? A meta-analytic review of choice overload. <em>Journal of Consumer Research</em>, 37(3), 409–425. <a href="https://econpapers.repec.org/RePEc:oup:jconrs:v:37:y:2010:i:3:p:409-425">econpapers.repec.org/RePEc:oup:jconrs:v:37:y:2010:i:3:p:409-425</a></li>
+    <li>Shirriff, K. (2013). How Hacker News ranking really works: scoring, controversy, and penalties. <a href="https://www.righto.com/2013/11/how-hacker-news-ranking-really-works.html">righto.com/2013/11/how-hacker-news-ranking-really-works.html</a></li>
+    <li>Miller, E. (2009). How not to sort by average rating. <a href="https://evanmiller.org/how-not-to-sort-by-average-rating.html">evanmiller.org/how-not-to-sort-by-average-rating.html</a></li>
+    <li>OWASP Top 10:2025, category overview. <a href="https://nordicapis.com/owasp-top-ten-2025-key-security-risks-for-apis-and-applications/">nordicapis.com/owasp-top-ten-2025-key-security-risks-for-apis-and-applications</a>; <a href="https://help.hcl-software.com/appscan/Enterprise/10.11.0/topics/r_owasp_top_10_2025_report.html">help.hcl-software.com/…/r_owasp_top_10_2025_report.html</a></li>
+    <li>Gas (app) — growth and acquisition. <a href="https://techcrunch.com/?p=2471372">techcrunch.com/?p=2471372</a>; <a href="https://www.today.com/today/amp/rcna64969">today.com/today/amp/rcna64969</a></li>
+    <li>Instagram poll stickers — interactive elements in business Stories. <a href="https://www.marketingdive.com/news/asos-dunkin-boost-engagement-with-poll-stickers-on-instagram-stories-ads/551380">marketingdive.com/news/asos-dunkin-boost-engagement-with-poll-stickers-on-instagram-stories-ads/551380</a></li>
+    <li>“Why your AI keeps building the same purple gradient website.” <a href="https://prg.sh/ramblings/Why-Your-AI-Keeps-Building-the-Same-Purple-Gradient-Website">prg.sh/ramblings/Why-Your-AI-Keeps-Building-the-Same-Purple-Gradient-Website</a>; “AI slop fonts and gradients.” <a href="https://www.925studios.co/blog/ai-slop-design-tells">925studios.co/blog/ai-slop-design-tells</a></li>
+  </ol>
+  <div class="box fill" style="margin-top: 3mm">
+    <p style="font-size: 9pt"><strong>A note on evidence.</strong> Sources 1–6 are peer-reviewed papers or analyses of public source code. Sources 8–10 are journalism and practitioner commentary, used only for market context and visual direction. Where a figure came only from a company or an unsourced blog, the study says so or leaves it out.</p>
+  </div>
+  <div class="folio"><span>This or That · Redesign case study</span><span>11</span></div>
+</section>
+
+</body>
+</html>
