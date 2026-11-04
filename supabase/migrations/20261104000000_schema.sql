@@ -167,19 +167,26 @@ create index notifications_user on public.notifications (user_id, read_at, creat
 
 -- ---------------------------------------------------------------------------
 -- lock down the Supabase Data API
+-- Only this app's own tables are touched, so the migration is safe to run in a
+-- Supabase project that already hosts other tables in the public schema.
+-- (If one of the table names above already exists, the whole migration fails
+-- and nothing is changed.)
 -- ---------------------------------------------------------------------------
 do $$
-declare t text;
+declare
+  t text;
+  mine text[] := array[
+    'users', 'categories', 'user_preferences', 'questions', 'options', 'votes', 'result_peeks',
+    'arguments', 'argument_marks', 'saves', 'reports', 'notifications'
+  ];
 begin
-  for t in select tablename from pg_tables where schemaname = 'public' loop
+  foreach t in array mine loop
     execute format('alter table public.%I enable row level security', t);
+    if exists (select 1 from pg_roles where rolname = 'anon') then
+      execute format('revoke all on table public.%I from anon', t);
+    end if;
+    if exists (select 1 from pg_roles where rolname = 'authenticated') then
+      execute format('revoke all on table public.%I from authenticated', t);
+    end if;
   end loop;
-  if exists (select 1 from pg_roles where rolname = 'anon') then
-    revoke all on all tables in schema public from anon;
-    revoke all on all sequences in schema public from anon;
-  end if;
-  if exists (select 1 from pg_roles where rolname = 'authenticated') then
-    revoke all on all tables in schema public from authenticated;
-    revoke all on all sequences in schema public from authenticated;
-  end if;
 end $$;
