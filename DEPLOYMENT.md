@@ -24,7 +24,7 @@ Pick one:
 - **SQL editor**: paste `supabase/migrations/20261104000000_schema.sql` into the Supabase SQL editor and run it.
 - **Supabase CLI**: `supabase link --project-ref <ref> && supabase db push`.
 
-The migration enables row-level security on every table with no policies and revokes `anon`/`authenticated`, so the auto-generated Data API can't touch your data. Check **Advisors → Security** afterwards; it should report no exposed tables.
+The migration enables row-level security on this app's twelve tables with no policies and revokes `anon`/`authenticated` on them, so the auto-generated Data API can't touch your data. It only touches its own tables, so it is safe in a project that already hosts other apps. If one of those table names (`users`, `questions`, `votes` …) already exists, it fails cleanly and changes nothing; use a fresh project in that case. Check **Advisors → Security** afterwards; it should report no exposed tables.
 
 Optional demo content (never on a real production dataset): `npm run seed`.
 
