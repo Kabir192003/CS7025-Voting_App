@@ -54,6 +54,15 @@ tests/                  integration tests against a real Postgres
 - **Supabase Data API locked out**: row-level security is on for every table with no policies, and `anon`/`authenticated` are revoked. The Node server is the only client.
 - **Fail closed**: one error handler with a stable JSON shape and no stack traces; unknown process-level errors log and exit so the platform restarts a clean process.
 
+## Sample content
+
+`supabase/seed/sample_content.sql` fills an empty database with about 1,090 two-sided decisions across the 12 topics, roughly 220 fictional people, about 30,000 votes spread over two weeks, arguments on about half the decisions, topic interests and a few reported outcomes. It runs in the Supabase SQL editor in about a second.
+
+- Decisions are built from curated word pools and hand-written pairs, so they are varied but formulaic; the 60 hand-written ones in `data/questions.js` are the quality bar.
+- The people have realistic names but are **fictional**. Every one has an email ending in `@seed.thisorthat.invalid` and an unknown random password, so none can be signed into. Say so wherever you show the site.
+- Remove all of it with `delete from public.users where email like '%@seed.thisorthat.invalid';` (cascades to their decisions, votes and arguments).
+- Regenerate with `npm run build:sample` (the script is `scripts/build-sample-sql.js`).
+
 ## Run it locally
 
 You need Node 18+ and a Postgres database (a local one, or a Supabase project).
