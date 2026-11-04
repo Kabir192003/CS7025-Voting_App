@@ -5,25 +5,71 @@
   "installCommand": "npm ci --omit=dev",
   "outputDirectory": "public",
   "cleanUrls": false,
-  "rewrites": [{ "source": "/api/:path*", "destination": "/api/index" }],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index"
+    }
+  ],
   "redirects": [
-    { "source": "/", "destination": "/home.html", "permanent": false },
-    { "source": "/question.html", "destination": "/poll.html", "permanent": true },
-    { "source": "/ask-question.html", "destination": "/ask.html", "permanent": true },
-    { "source": "/edit-profile.html", "destination": "/profile.html", "permanent": true }
+    {
+      "source": "/",
+      "destination": "/home.html",
+      "permanent": false
+    },
+    {
+      "source": "/question.html",
+      "destination": "/poll.html",
+      "permanent": true
+    },
+    {
+      "source": "/ask-question.html",
+      "destination": "/ask.html",
+      "permanent": true
+    },
+    {
+      "source": "/edit-profile.html",
+      "destination": "/profile.html",
+      "permanent": true
+    }
   ],
   "headers": [
     {
       "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Strict-Transport-Security", "value": "max-age=15552000; includeSubDomains" },
-        { "key": "Cache-Control", "value": "no-cache" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=15552000; includeSubDomains"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
       ]
     }
   ],
-  "functions": { "api/index.js": { "maxDuration": 15 } }
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 15
+    }
+  },
+  "regions": [
+    "dub1"
+  ]
 }
